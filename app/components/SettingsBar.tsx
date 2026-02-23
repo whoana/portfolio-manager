@@ -15,7 +15,7 @@ export default function SettingsBar() {
   const { helpEnabled, setHelpEnabled } = useHelp();
 
   return (
-    <div className="fixed top-2 right-4 z-[70] flex items-center gap-3 bg-card-bg/90 backdrop-blur-sm border border-card-border rounded-lg shadow-sm px-3 py-1.5">
+    <div className="fixed top-[52px] sm:top-2 right-2 sm:right-4 z-[70] flex items-center gap-2 sm:gap-3 bg-card-bg/90 backdrop-blur-sm border border-card-border rounded-lg shadow-sm px-2 sm:px-3 py-1 sm:py-1.5 scale-90 sm:scale-100 origin-top-right">
       {/* Help toggle */}
       <div className="flex items-center gap-1.5">
         <span className="text-xs text-muted-foreground select-none">도움말</span>

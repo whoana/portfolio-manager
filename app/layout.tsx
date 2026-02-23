@@ -5,6 +5,7 @@ import ClientProviders from "@/app/components/ClientProviders";
 export const metadata: Metadata = {
   title: "ETF 포트폴리오 매니저",
   description: "ETF 포트폴리오를 쉽게 구성하고 관리하세요",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
 };
 
 export default function RootLayout({

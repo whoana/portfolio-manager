@@ -49,8 +49,9 @@ describe("PortfolioTable", () => {
     const stocks = [makeStock()];
     render(<PortfolioTable {...DEFAULT_PROPS} stocks={stocks} />);
 
-    expect(screen.getByText("TIGER 미국S&P500")).toBeInTheDocument();
-    expect(screen.getByText("360750")).toBeInTheDocument();
+    const table = screen.getByTestId("desktop-table");
+    expect(within(table).getByText("TIGER 미국S&P500")).toBeInTheDocument();
+    expect(within(table).getByText("360750")).toBeInTheDocument();
   });
 
   it("행 더블클릭 → onEditClick(stock) 호출", async () => {
@@ -65,7 +66,8 @@ describe("PortfolioTable", () => {
       />
     );
 
-    const row = screen.getByText("TIGER 미국S&P500").closest("tr")!;
+    const table = screen.getByTestId("desktop-table");
+    const row = within(table).getByText("TIGER 미국S&P500").closest("tr")!;
     await user.dblClick(row);
 
     expect(onEditClick).toHaveBeenCalledWith(stock);
@@ -122,7 +124,8 @@ describe("PortfolioTable", () => {
       />
     );
 
-    await user.click(screen.getByTitle("현재가 조회"));
+    const table = screen.getByTestId("desktop-table");
+    await user.click(within(table).getByTitle("현재가 조회"));
 
     await waitFor(() => {
       expect(onUpdate).toHaveBeenCalledWith(
@@ -146,7 +149,8 @@ describe("PortfolioTable", () => {
       />
     );
 
-    await user.click(screen.getByTitle("현재가 조회"));
+    const table = screen.getByTestId("desktop-table");
+    await user.click(within(table).getByTitle("현재가 조회"));
 
     await waitFor(() => {
       expect(
@@ -194,9 +198,10 @@ describe("PortfolioTable", () => {
     const stock = makeStock({ currentPrice: undefined });
     render(<PortfolioTable {...DEFAULT_PROPS} stocks={[stock]} />);
 
+    const table = screen.getByTestId("desktop-table");
     // 마운트 시 자동 시세 갱신이 실행되므로 로딩 완료 후 확인
     await waitFor(() => {
-      const rows = screen.getAllByRole("row");
+      const rows = within(table).getAllByRole("row");
       const dataRow = rows[1];
       expect(within(dataRow).getByText("-")).toBeInTheDocument();
     });
@@ -214,7 +219,8 @@ describe("PortfolioTable", () => {
       />
     );
 
-    await user.click(screen.getByTitle("삭제"));
+    const table = screen.getByTestId("desktop-table");
+    await user.click(within(table).getByTitle("삭제"));
 
     expect(onUpdate).toHaveBeenCalledWith([]);
   });

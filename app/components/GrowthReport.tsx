@@ -36,12 +36,12 @@ export default function GrowthReport({ portfolio }: GrowthReportProps) {
   return (
     <div className="bg-card-bg rounded-xl border border-card-border overflow-hidden">
       {/* Card Header */}
-      <div className="px-5 py-4 border-b border-card-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="px-4 sm:px-5 py-4 border-b border-card-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <h2 className="text-sm font-bold text-primary whitespace-nowrap">
           자산성장 전망 (1~10년)
         </h2>
         {/* Parameter Inputs */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 justify-end">
+        <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-2 sm:justify-end">
           {/* 연배당성장율 */}
           <div className="flex items-center gap-1.5">
             <label className="text-xs text-muted-foreground whitespace-nowrap">연배당성장율</label>
@@ -103,8 +103,8 @@ export default function GrowthReport({ portfolio }: GrowthReportProps) {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
+      {/* Desktop table */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
             <tr className="bg-primary text-primary-fg">
@@ -143,8 +143,38 @@ export default function GrowthReport({ portfolio }: GrowthReportProps) {
         </table>
       </div>
 
+      {/* Mobile card list */}
+      <div className="md:hidden divide-y divide-card-border">
+        {rows.map((row) => (
+          <div key={row.year} className="px-4 py-2.5">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-medium text-primary">{row.year}년차</span>
+              <span className="text-[11px] text-muted-foreground">{formatPercent(row.dividendRate)}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 text-[11px]">
+              <div className="flex justify-between">
+                <span className="text-muted">평가금</span>
+                <span>{formatNumber(row.assetValue)}원</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted">누적투자</span>
+                <span className="text-muted-foreground">{formatNumber(row.totalInvested)}원</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted">월배당</span>
+                <span className="text-accent-green">{formatNumber(row.monthlyDividend)}원</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted">연배당</span>
+                <span className="text-accent-green">{formatNumber(row.annualDividend)}원</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
       {/* Footer note */}
-      <div className="px-5 py-3 bg-table-hover border-t border-card-border text-xs text-muted">
+      <div className="px-4 sm:px-5 py-3 bg-table-hover border-t border-card-border text-xs text-muted">
         초기 가중평균 배당률 {formatPercent(weightedDividendRate)} 기준 &middot; 초기 투자금{" "}
         {formatNumber(portfolio.investmentAmount)}원 &middot; 매년 배당성장율/자산상승율 복리 적용
       </div>

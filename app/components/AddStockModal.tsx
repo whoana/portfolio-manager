@@ -121,8 +121,8 @@ export default function AddStockModal({ onAdd, onClose, initialStock }: AddStock
   );
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-card-bg rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm sm:p-4">
+      <div className="bg-card-bg rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-lg max-h-[85vh] sm:max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-6 py-4 border-b border-card-border">
           <h2 className="text-base font-bold text-primary">
             {initialStock ? "종목 수정" : "종목 추가"}

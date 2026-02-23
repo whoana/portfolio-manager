@@ -52,17 +52,17 @@ export default function PortfolioSummary({ portfolio }: PortfolioSummaryProps) {
 
   return (
     <div className="bg-card-bg rounded-xl border border-card-border overflow-hidden">
-      <div className="px-5 py-4 border-b border-card-border">
+      <div className="px-4 sm:px-5 py-3 sm:py-4 border-b border-card-border">
         <h2 className="text-sm font-bold text-primary">포트폴리오 요약</h2>
       </div>
 
-      <div className="px-5 py-4">
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-5">
+      <div className="px-4 sm:px-5 py-3 sm:py-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
           {statsItems.map((item) => (
-            <div key={item.label} className="flex flex-col gap-1">
-              <span className="text-xs text-muted">{item.label}</span>
+            <div key={item.label} className="flex flex-col gap-0.5 sm:gap-1">
+              <span className="text-[10px] sm:text-xs text-muted">{item.label}</span>
               <span
-                className={`text-lg font-bold ${
+                className={`text-base sm:text-lg font-bold ${
                   item.warn ? "text-accent-red" : "text-primary"
                 }`}
               >
@@ -70,7 +70,7 @@ export default function PortfolioSummary({ portfolio }: PortfolioSummaryProps) {
               </span>
               {item.sub && (
                 <span
-                  className={`text-xs ${item.warn ? "text-accent-red" : "text-muted"}`}
+                  className={`text-[10px] sm:text-xs ${item.warn ? "text-accent-red" : "text-muted"}`}
                 >
                   {item.sub}
                 </span>
@@ -78,7 +78,6 @@ export default function PortfolioSummary({ portfolio }: PortfolioSummaryProps) {
             </div>
           ))}
         </div>
-
       </div>
     </div>
   );

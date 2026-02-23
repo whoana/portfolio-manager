@@ -60,9 +60,9 @@ export default function AllocationTable({
 
   return (
     <div className="bg-card-bg rounded-xl border border-card-border overflow-hidden">
-      <div className="px-5 py-4 border-b border-card-border">
+      <div className="px-4 sm:px-5 py-4 border-b border-card-border">
         <h2 className="text-sm font-bold text-primary mb-3">투자금액별 구성표</h2>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <label className="text-xs font-medium text-muted-foreground whitespace-nowrap">
             투자금액:
           </label>
@@ -71,7 +71,7 @@ export default function AllocationTable({
               type="text"
               value={inputValue}
               onChange={handleAmountChange}
-              className="px-3 py-2 pr-6 text-sm font-bold border border-input-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary w-48 text-right bg-input-highlight"
+              className="px-3 py-2 pr-6 text-sm font-bold border border-input-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary w-40 sm:w-48 text-right bg-input-highlight"
               placeholder="0"
             />
             <span className="absolute right-2.5 top-2.5 text-muted text-xs">원</span>
@@ -82,7 +82,8 @@ export default function AllocationTable({
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      {/* Desktop table */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
             <tr className="bg-primary text-primary-fg">
@@ -160,6 +161,67 @@ export default function AllocationTable({
             </tr>
           </tfoot>
         </table>
+      </div>
+
+      {/* Mobile card list */}
+      <div className="md:hidden divide-y divide-card-border">
+        {calcResults.map(({ stock, calc }) => (
+          <div key={stock.id} className="px-4 py-3">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-[10px] font-medium text-primary-fg bg-primary px-1.5 py-0.5 rounded flex-shrink-0">
+                  {stock.category}
+                </span>
+                <span className="text-xs font-medium text-foreground truncate">{stock.name}</span>
+              </div>
+              <span className="text-xs text-muted-foreground ml-2 flex-shrink-0">
+                {formatPercent(stock.targetWeight)}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px]">
+              <div className="flex justify-between">
+                <span className="text-muted">투자금액</span>
+                <span>{formatNumber(calc.investAmount)}원</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted">매수수량</span>
+                <span className="font-mono">
+                  {stock.currentPrice ? formatNumber(calc.quantity) + "주" : "-"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted">월배당</span>
+                <span className="text-accent-green">{formatNumber(calc.monthlyDividend)}원</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted">연배당</span>
+                <span className="text-accent-green">{formatNumber(calc.annualDividend)}원</span>
+              </div>
+            </div>
+          </div>
+        ))}
+        {/* Mobile totals */}
+        <div className="px-4 py-3 bg-primary/10">
+          <div className="text-xs font-bold text-primary mb-2">합계</div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] font-medium">
+            <div className="flex justify-between">
+              <span className="text-muted">투자금액</span>
+              <span className="text-primary">{formatNumber(totals.investAmount)}원</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted">매수수량</span>
+              <span className="text-primary font-mono">{formatNumber(totals.quantity)}주</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted">월배당</span>
+              <span className="text-accent-green">{formatNumber(totals.monthlyDividend)}원</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted">연배당</span>
+              <span className="text-accent-green">{formatNumber(totals.annualDividend)}원</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {stocks.some((s) => !s.currentPrice) && (
