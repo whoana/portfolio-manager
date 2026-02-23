@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Portfolio, PortfolioStock } from "@/app/lib/types";
 import {
   getPortfolios,
@@ -8,6 +8,7 @@ import {
   deletePortfolio,
   createPortfolio,
 } from "@/app/lib/portfolioStorage";
+import { exportPortfolioExcel } from "@/app/lib/exportExcel";
 import { useHelp } from "@/app/components/HelpProvider";
 import { MAIN_STEPS } from "@/app/lib/helpSteps";
 import IntroPage from "@/app/components/IntroPage";
@@ -96,6 +97,8 @@ export default function HomePage() {
   const [newPortfolioName, setNewPortfolioName] = useState("");
   const [showIntro, setShowIntro] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [saveFlash, setSaveFlash] = useState(false);
   const { resetGuide } = useHelp();
 
   useEffect(() => {
@@ -185,6 +188,25 @@ export default function HomePage() {
     }
   };
 
+  const handleSave = useCallback(() => {
+    if (!activePortfolio) return;
+    savePortfolio(activePortfolio);
+    setSaveFlash(true);
+    setTimeout(() => setSaveFlash(false), 1500);
+  }, [activePortfolio]);
+
+  const handleExport = useCallback(async () => {
+    if (!activePortfolio || activePortfolio.stocks.length === 0) return;
+    setExporting(true);
+    try {
+      await exportPortfolioExcel(activePortfolio);
+    } catch {
+      // export error handled silently
+    } finally {
+      setExporting(false);
+    }
+  }, [activePortfolio]);
+
   const handleNext = () => {
     setShowIntro(false);
     resetGuide();
@@ -225,74 +247,125 @@ export default function HomePage() {
         <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-5">
           {/* Portfolio tabs */}
           <div data-help-step="main-tabs" className="flex items-center gap-2 flex-wrap">
-            {portfolios.map((p) => (
-              <div key={p.id} className="flex items-center">
-                <button
-                  onClick={() => setActiveId(p.id)}
-                  onDoubleClick={() => handleRenamePortfolio(p.id)}
-                  title="더블클릭으로 이름 변경"
-                  className={`px-4 py-2 text-xs font-medium rounded-l-lg border transition-colors ${
-                    activeId === p.id
-                      ? "bg-primary text-primary-fg border-primary"
-                      : "bg-card-bg text-muted-foreground border-card-border hover:bg-table-hover"
-                  }`}
-                >
-                  {p.name}
-                </button>
-                <button
-                  onClick={() => handleDeletePortfolio(p.id)}
-                  className={`px-2 py-2 text-xs rounded-r-lg border-t border-r border-b transition-colors ${
-                    activeId === p.id
-                      ? "bg-primary/80 text-primary-fg-muted/60 border-primary hover:text-primary-fg"
-                      : "bg-card-bg text-muted border-card-border hover:text-accent-red hover:bg-table-hover"
-                  }`}
-                  title="삭제"
-                >
-                  x
-                </button>
-              </div>
-            ))}
+            <div className="flex items-center gap-2 flex-wrap flex-1 min-w-0">
+              {portfolios.map((p) => (
+                <div key={p.id} className="flex items-center">
+                  <button
+                    onClick={() => setActiveId(p.id)}
+                    onDoubleClick={() => handleRenamePortfolio(p.id)}
+                    title="더블클릭으로 이름 변경"
+                    className={`px-4 py-2 text-xs font-medium rounded-l-lg border transition-colors ${
+                      activeId === p.id
+                        ? "bg-primary text-primary-fg border-primary"
+                        : "bg-card-bg text-muted-foreground border-card-border hover:bg-table-hover"
+                    }`}
+                  >
+                    {p.name}
+                  </button>
+                  <button
+                    onClick={() => handleDeletePortfolio(p.id)}
+                    className={`px-2 py-2 text-xs rounded-r-lg border-t border-r border-b transition-colors ${
+                      activeId === p.id
+                        ? "bg-primary/80 text-primary-fg-muted/60 border-primary hover:text-primary-fg"
+                        : "bg-card-bg text-muted border-card-border hover:text-accent-red hover:bg-table-hover"
+                    }`}
+                    title="삭제"
+                  >
+                    x
+                  </button>
+                </div>
+              ))}
 
-            {showNewPortfolioInput ? (
-              <div className="flex items-center gap-2">
-                <input
-                  autoFocus
-                  type="text"
-                  value={newPortfolioName}
-                  onChange={(e) => setNewPortfolioName(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleCreatePortfolio();
-                    if (e.key === "Escape") {
+              {showNewPortfolioInput ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    autoFocus
+                    type="text"
+                    value={newPortfolioName}
+                    onChange={(e) => setNewPortfolioName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleCreatePortfolio();
+                      if (e.key === "Escape") {
+                        setShowNewPortfolioInput(false);
+                        setNewPortfolioName("");
+                      }
+                    }}
+                    placeholder="포트폴리오 이름"
+                    className="px-3 py-2 text-xs border border-input-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                  />
+                  <button
+                    onClick={handleCreatePortfolio}
+                    className="px-3 py-2 text-xs bg-primary text-primary-fg rounded-lg hover:bg-primary/90"
+                  >
+                    생성
+                  </button>
+                  <button
+                    onClick={() => {
                       setShowNewPortfolioInput(false);
                       setNewPortfolioName("");
-                    }
-                  }}
-                  placeholder="포트폴리오 이름"
-                  className="px-3 py-2 text-xs border border-input-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                />
+                    }}
+                    className="px-3 py-2 text-xs text-muted-foreground border border-card-border rounded-lg hover:bg-table-hover"
+                  >
+                    취소
+                  </button>
+                </div>
+              ) : (
                 <button
-                  onClick={handleCreatePortfolio}
-                  className="px-3 py-2 text-xs bg-primary text-primary-fg rounded-lg hover:bg-primary/90"
+                  onClick={() => setShowNewPortfolioInput(true)}
+                  className="px-4 py-2 text-xs font-medium text-muted-foreground border border-dashed border-input-border rounded-lg hover:border-primary hover:text-primary transition-colors"
                 >
-                  생성
+                  + 새 포트폴리오
+                </button>
+              )}
+            </div>
+
+            {/* Save & Export buttons */}
+            {activePortfolio && (
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <button
+                  onClick={handleSave}
+                  className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-lg border transition-colors ${
+                    saveFlash
+                      ? "bg-accent-green/10 text-accent-green border-accent-green/30"
+                      : "bg-card-bg text-muted-foreground border-card-border hover:border-primary hover:text-primary"
+                  }`}
+                >
+                  {saveFlash ? (
+                    <>
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      저장 완료
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                      </svg>
+                      저장
+                    </>
+                  )}
                 </button>
                 <button
-                  onClick={() => {
-                    setShowNewPortfolioInput(false);
-                    setNewPortfolioName("");
-                  }}
-                  className="px-3 py-2 text-xs text-muted-foreground border border-card-border rounded-lg hover:bg-table-hover"
+                  onClick={handleExport}
+                  disabled={exporting || activePortfolio.stocks.length === 0}
+                  className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium bg-primary text-primary-fg rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  취소
+                  {exporting ? (
+                    <>
+                      <span className="inline-block w-3.5 h-3.5 border-2 border-primary-fg/30 border-t-primary-fg rounded-full animate-spin" />
+                      내보내는 중...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Excel
+                    </>
+                  )}
                 </button>
               </div>
-            ) : (
-              <button
-                onClick={() => setShowNewPortfolioInput(true)}
-                className="px-4 py-2 text-xs font-medium text-muted-foreground border border-dashed border-input-border rounded-lg hover:border-primary hover:text-primary transition-colors"
-              >
-                + 새 포트폴리오
-              </button>
             )}
           </div>
 

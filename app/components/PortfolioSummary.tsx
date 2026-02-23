@@ -1,18 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { Portfolio } from "@/app/lib/types";
 import { formatPercent, formatNumber } from "@/app/lib/portfolioCalc";
-import { exportPortfolioExcel } from "@/app/lib/exportExcel";
 
 interface PortfolioSummaryProps {
   portfolio: Portfolio;
 }
 
 export default function PortfolioSummary({ portfolio }: PortfolioSummaryProps) {
-  const [exporting, setExporting] = useState(false);
-  const [exportError, setExportError] = useState("");
-
   const { stocks, investmentAmount } = portfolio;
 
   const totalWeight = stocks.reduce((sum, s) => sum + s.targetWeight, 0);
@@ -25,24 +20,6 @@ export default function PortfolioSummary({ portfolio }: PortfolioSummaryProps) {
 
   const estAnnualDividend = Math.round(investmentAmount * weightedDividendRate);
   const estMonthlyDividend = Math.round(estAnnualDividend / 12);
-
-  const handleExport = async () => {
-    if (stocks.length === 0) {
-      setExportError("종목이 없습니다. 먼저 종목을 추가하세요.");
-      return;
-    }
-    setExporting(true);
-    setExportError("");
-    try {
-      await exportPortfolioExcel(portfolio);
-    } catch (err) {
-      setExportError(
-        err instanceof Error ? err.message : "Excel 내보내기 중 오류가 발생했습니다."
-      );
-    } finally {
-      setExporting(false);
-    }
-  };
 
   const statsItems = [
     {
@@ -102,30 +79,6 @@ export default function PortfolioSummary({ portfolio }: PortfolioSummaryProps) {
           ))}
         </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleExport}
-            disabled={exporting || stocks.length === 0}
-            className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-fg text-sm font-bold rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {exporting ? (
-              <>
-                <span className="inline-block w-4 h-4 border-2 border-primary-fg/30 border-t-primary-fg rounded-full animate-spin" />
-                내보내는 중...
-              </>
-            ) : (
-              <>
-                Excel 내보내기
-              </>
-            )}
-          </button>
-          {exportError && (
-            <span className="text-xs text-accent-red">{exportError}</span>
-          )}
-          {stocks.length === 0 && (
-            <span className="text-xs text-muted">종목을 추가한 후 내보낼 수 있습니다.</span>
-          )}
-        </div>
       </div>
     </div>
   );
