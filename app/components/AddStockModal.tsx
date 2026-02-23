@@ -40,6 +40,10 @@ export default function AddStockModal({ onAdd, onClose, initialStock }: AddStock
     try {
       const result = await getStockPrice(stock.code);
       setSelectedPrice(result.price);
+      // ETF 분배율(TTM) 자동 채움 — 빈 칸일 때만
+      if (result.dividendYield != null && !form.dividendRate) {
+        setForm((prev) => ({ ...prev, dividendRate: result.dividendYield!.toFixed(2) }));
+      }
     } catch {
       // 가격 조회 실패 시 무시 - PortfolioTable에서 재조회 가능
     } finally {

@@ -64,4 +64,31 @@ export const handlers = [
       return HttpResponse.json({ error: "종목 없음" }, { status: 404 });
     }
   ),
+
+  // Naver 주식 integration API (ETF 분배율 포함)
+  http.get(
+    "https://m.stock.naver.com/api/stock/:code/integration",
+    ({ params }) => {
+      const { code } = params as { code: string };
+
+      const etfData: Record<string, { stockName: string; dividendYieldTtm: number }> = {
+        "360750": { stockName: "TIGER 미국S&P500", dividendYieldTtm: 1.72 },
+        "458730": { stockName: "TIGER 미국배당다우존스", dividendYieldTtm: 2.86 },
+        "069500": { stockName: "KODEX 200", dividendYieldTtm: 1.5 },
+      };
+
+      const data = etfData[code];
+      if (data) {
+        return HttpResponse.json({
+          stockEndType: "etf",
+          stockName: data.stockName,
+          etfKeyIndicator: {
+            dividendYieldTtm: data.dividendYieldTtm,
+          },
+        });
+      }
+
+      return HttpResponse.json({ error: "종목 없음" }, { status: 404 });
+    }
+  ),
 ];

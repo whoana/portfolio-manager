@@ -7,6 +7,20 @@ interface NaverStockBasic {
   stockEndType: string;
 }
 
+interface NaverIntegration {
+  stockEndType: string;
+  stockName: string;
+  etfKeyIndicator?: {
+    dividendYieldTtm?: number;
+  };
+}
+
+const NAVER_HEADERS = {
+  "User-Agent":
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  Referer: "https://m.stock.naver.com",
+};
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: { code: string } }
@@ -18,30 +32,42 @@ export async function GET(
   }
 
   try {
-    const url = `https://m.stock.naver.com/api/stock/${code}/basic`;
-    const response = await fetch(url, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        Referer: "https://m.stock.naver.com",
-      },
-      next: { revalidate: 0 },
-    });
+    // basic + integration API를 병렬 호출
+    const [basicRes, integrationRes] = await Promise.all([
+      fetch(`https://m.stock.naver.com/api/stock/${code}/basic`, {
+        headers: NAVER_HEADERS,
+        next: { revalidate: 0 },
+      }),
+      fetch(`https://m.stock.naver.com/api/stock/${code}/integration`, {
+        headers: NAVER_HEADERS,
+        next: { revalidate: 0 },
+      }),
+    ]);
 
-    if (!response.ok) {
+    if (!basicRes.ok) {
       return NextResponse.json(
         { error: "현재가 조회 실패" },
-        { status: response.status }
+        { status: basicRes.status }
       );
     }
 
-    const data = (await response.json()) as NaverStockBasic;
-    const price = parseInt(data.closePrice?.replace(/,/g, "") || "0", 10);
+    const basicData = (await basicRes.json()) as NaverStockBasic;
+    const price = parseInt(basicData.closePrice?.replace(/,/g, "") || "0", 10);
+
+    // ETF 분배율(TTM) 추출 — integration 실패 시 무시
+    let dividendYield: number | undefined;
+    if (integrationRes.ok) {
+      const intData = (await integrationRes.json()) as NaverIntegration;
+      if (intData.etfKeyIndicator?.dividendYieldTtm != null) {
+        dividendYield = intData.etfKeyIndicator.dividendYieldTtm;
+      }
+    }
 
     return NextResponse.json({
       code,
-      name: data.stockName || code,
+      name: basicData.stockName || code,
       price,
+      ...(dividendYield != null && { dividendYield }),
     });
   } catch (error) {
     console.error("Stock price error:", error);
