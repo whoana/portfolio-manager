@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import BalloonTooltip from "./BalloonTooltip";
 import { INTRO_STEPS } from "@/app/lib/helpSteps";
 
@@ -40,8 +41,8 @@ export default function IntroPage({ onNext }: IntroPageProps) {
       {/* Header */}
       <header className="bg-primary text-primary-fg">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12 text-center">
-          <div className="w-16 h-16 bg-primary-badge/20 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-6">
-            💰
+          <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-6 shadow-lg">
+            <Image src="/logo.jpg" alt="ETF 포트폴리오 매니저" width={96} height={96} className="w-full h-full object-cover" priority />
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold mb-3">
             복리의 마법, 장기 투자의 힘
