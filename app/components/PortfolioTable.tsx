@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { PortfolioStock } from "@/app/lib/types";
 import { getStockPrice } from "@/app/lib/naverFinance";
 import { formatNumber, formatPercent } from "@/app/lib/portfolioCalc";
@@ -20,6 +20,14 @@ export default function PortfolioTable({
 }: PortfolioTableProps) {
   const [loadingCodes, setLoadingCodes] = useState<Set<string>>(new Set());
   const [errorMsg, setErrorMsg] = useState("");
+  const autoRefreshDone = useRef(false);
+
+  useEffect(() => {
+    if (stocks.length > 0 && !autoRefreshDone.current) {
+      autoRefreshDone.current = true;
+      refreshAllPrices();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const totalWeight = stocks.reduce((sum, s) => sum + s.targetWeight, 0);
   const weightOver = totalWeight > 1.001;

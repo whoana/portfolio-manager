@@ -189,14 +189,17 @@ describe("PortfolioTable", () => {
     });
   });
 
-  it("currentPrice 없으면 '-' 표시", () => {
+  it("currentPrice 없으면 '-' 표시", async () => {
+    mockGetStockPrice.mockRejectedValue(new Error("no price"));
     const stock = makeStock({ currentPrice: undefined });
     render(<PortfolioTable {...DEFAULT_PROPS} stocks={[stock]} />);
 
-    const rows = screen.getAllByRole("row");
-    // 헤더 제외한 데이터 행
-    const dataRow = rows[1];
-    expect(within(dataRow).getByText("-")).toBeInTheDocument();
+    // 마운트 시 자동 시세 갱신이 실행되므로 로딩 완료 후 확인
+    await waitFor(() => {
+      const rows = screen.getAllByRole("row");
+      const dataRow = rows[1];
+      expect(within(dataRow).getByText("-")).toBeInTheDocument();
+    });
   });
 
   it("삭제 버튼 클릭 → onUpdate(빈 배열) 호출", async () => {

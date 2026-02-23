@@ -2,6 +2,8 @@
 
 import { useState, useRef } from "react";
 import { PortfolioStock, StockSearchResult } from "@/app/lib/types";
+import { getStockPrice } from "@/app/lib/naverFinance";
+import { formatNumber } from "@/app/lib/portfolioCalc";
 import StockSearch from "./StockSearch";
 
 interface AddStockModalProps {
@@ -25,14 +27,25 @@ export default function AddStockModal({ onAdd, onClose, initialStock }: AddStock
     analysis: initialStock ? (initialStock.analysis ?? "") : "",
     rationale: initialStock ? (initialStock.rationale ?? "") : "",
   });
+  const [selectedPrice, setSelectedPrice] = useState<number | undefined>(
+    initialStock?.currentPrice
+  );
+  const [priceLoading, setPriceLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleSelect = (stock: StockSearchResult) => {
+  const handleSelect = async (stock: StockSearchResult) => {
     setSelected(stock);
-    // Auto-focus the target weight input after stock selection
-    setTimeout(() => {
-      targetWeightRef.current?.focus();
-    }, 50);
+    setSelectedPrice(undefined);
+    setPriceLoading(true);
+    try {
+      const result = await getStockPrice(stock.code);
+      setSelectedPrice(result.price);
+    } catch {
+      // 가격 조회 실패 시 무시 - PortfolioTable에서 재조회 가능
+    } finally {
+      setPriceLoading(false);
+    }
+    setTimeout(() => targetWeightRef.current?.focus(), 50);
   };
 
   const validate = () => {
@@ -60,6 +73,7 @@ export default function AddStockModal({ onAdd, onClose, initialStock }: AddStock
       code: selected.code,
       targetWeight: parseFloat(form.targetWeight) / 100,
       dividendRate: parseFloat(form.dividendRate) / 100,
+      currentPrice: selectedPrice,
       strategy: form.strategy,
       analysis: form.analysis,
       rationale: form.rationale,
@@ -128,9 +142,14 @@ export default function AddStockModal({ onAdd, onClose, initialStock }: AddStock
                 <div>
                   <span className="text-sm font-medium text-primary">{selected.name}</span>
                   <span className="ml-2 text-xs text-muted font-mono">{selected.code}</span>
+                  {priceLoading ? (
+                    <span className="ml-2 inline-block w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin align-middle" />
+                  ) : selectedPrice ? (
+                    <span className="ml-2 text-xs text-accent-green font-medium">{formatNumber(selectedPrice)}원</span>
+                  ) : null}
                 </div>
                 <button
-                  onClick={() => setSelected(null)}
+                  onClick={() => { setSelected(null); setSelectedPrice(undefined); }}
                   className="text-xs text-muted hover:text-accent-red"
                 >
                   다시 검색

@@ -301,6 +301,7 @@ export default function HomePage() {
               {/* Portfolio composition table */}
               <div data-help-step="main-table">
                 <PortfolioTable
+                  key={activePortfolio.id}
                   stocks={activePortfolio.stocks}
                   onUpdate={handleStocksChange}
                   onAddClick={() => setShowAddModal(true)}
