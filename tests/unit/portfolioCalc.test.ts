@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   calcStockAllocation,
   calcPortfolioTotals,
+  calcCategoryPositions,
   formatNumber,
   formatPercent,
 } from "@/app/lib/portfolioCalc";
@@ -138,6 +139,72 @@ describe("calcPortfolioTotals", () => {
 
     expect(totals.totalWeight).toBeCloseTo(0.8);
     expect(totals.results).toHaveLength(2);
+  });
+});
+
+describe("calcCategoryPositions", () => {
+  it("카테고리별 투자금액과 비중을 정확히 계산", () => {
+    const stocks = [
+      makeStock({ category: "배당", targetWeight: 0.3 }),
+      makeStock({ id: "s2", category: "배당", targetWeight: 0.2 }),
+      makeStock({ id: "s3", category: "성장", targetWeight: 0.5 }),
+    ];
+    const result = calcCategoryPositions(stocks, 100_000_000);
+
+    expect(result).toHaveLength(2);
+    const dividend = result.find((r) => r.category === "배당");
+    const growth = result.find((r) => r.category === "성장");
+
+    expect(dividend?.amount).toBe(50_000_000);
+    expect(dividend?.weight).toBeCloseTo(0.5);
+    expect(growth?.amount).toBe(50_000_000);
+    expect(growth?.weight).toBeCloseTo(0.5);
+  });
+
+  it("빈 배열이면 빈 배열 반환", () => {
+    const result = calcCategoryPositions([], 100_000_000);
+    expect(result).toHaveLength(0);
+  });
+
+  it("단일 카테고리면 비중 100%", () => {
+    const stocks = [
+      makeStock({ category: "안전판", targetWeight: 0.4 }),
+      makeStock({ id: "s2", category: "안전판", targetWeight: 0.6 }),
+    ];
+    const result = calcCategoryPositions(stocks, 50_000_000);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].category).toBe("안전판");
+    expect(result[0].amount).toBe(50_000_000);
+    expect(result[0].weight).toBeCloseTo(1.0);
+  });
+
+  it("투자금액 0이면 amount 모두 0, weight는 정상 계산", () => {
+    const stocks = [
+      makeStock({ category: "배당", targetWeight: 0.5 }),
+      makeStock({ id: "s2", category: "성장", targetWeight: 0.5 }),
+    ];
+    const result = calcCategoryPositions(stocks, 0);
+
+    expect(result).toHaveLength(2);
+    result.forEach((r) => expect(r.amount).toBe(0));
+    result.forEach((r) => expect(r.weight).toBeCloseTo(0.5));
+  });
+
+  it("targetWeight 합이 1 미만이어도 비중은 정규화", () => {
+    const stocks = [
+      makeStock({ category: "배당", targetWeight: 0.1 }),
+      makeStock({ id: "s2", category: "성장", targetWeight: 0.3 }),
+    ];
+    const result = calcCategoryPositions(stocks, 100_000_000);
+
+    const dividend = result.find((r) => r.category === "배당");
+    const growth = result.find((r) => r.category === "성장");
+
+    expect(dividend?.weight).toBeCloseTo(0.25);
+    expect(growth?.weight).toBeCloseTo(0.75);
+    expect(dividend?.amount).toBe(10_000_000);
+    expect(growth?.amount).toBe(30_000_000);
   });
 });
 

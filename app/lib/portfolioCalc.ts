@@ -59,6 +59,30 @@ export function calcPortfolioTotals(
   };
 }
 
+export interface CategoryPosition {
+  category: string;
+  amount: number;
+  weight: number;
+}
+
+export function calcCategoryPositions(
+  stocks: PortfolioStock[],
+  investmentAmount: number
+): CategoryPosition[] {
+  const categoryMap = new Map<string, number>();
+  stocks.forEach((s) => {
+    const current = categoryMap.get(s.category) || 0;
+    categoryMap.set(s.category, current + s.targetWeight);
+  });
+
+  const totalWeight = stocks.reduce((sum, s) => sum + s.targetWeight, 0);
+  return Array.from(categoryMap.entries()).map(([category, weight]) => ({
+    category,
+    amount: Math.round(weight * investmentAmount),
+    weight: totalWeight > 0 ? weight / totalWeight : 0,
+  }));
+}
+
 export function formatNumber(n: number): string {
   return n.toLocaleString("ko-KR");
 }
