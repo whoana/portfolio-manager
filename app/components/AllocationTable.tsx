@@ -59,8 +59,8 @@ export default function AllocationTable({
     totals.actualAmount > 0 ? totals.annualDividend / totals.actualAmount : 0;
 
   return (
-    <div className="bg-card-bg rounded-xl border border-card-border overflow-hidden">
-      <div className="px-4 sm:px-5 py-4 border-b border-card-border">
+    <div className="bg-card-bg rounded-2xl md:rounded-xl md:border border-card-border overflow-hidden shadow-sm md:shadow-none">
+      <div className="px-5 py-4 border-b border-card-border">
         <h2 className="text-sm font-bold text-primary mb-3">투자금액별 구성표</h2>
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <label className="text-xs font-medium text-muted-foreground whitespace-nowrap">
@@ -71,10 +71,10 @@ export default function AllocationTable({
               type="text"
               value={inputValue}
               onChange={handleAmountChange}
-              className="px-3 py-2 pr-6 text-sm font-bold border border-input-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary w-40 sm:w-48 text-right bg-input-highlight"
+              className="px-3 py-2.5 pr-6 text-sm font-bold border border-input-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary w-40 sm:w-48 text-right bg-input-highlight"
               placeholder="0"
             />
-            <span className="absolute right-2.5 top-2.5 text-muted text-xs">원</span>
+            <span className="absolute right-2.5 top-3 text-muted text-xs">원</span>
           </div>
           <span className="text-xs text-muted">
             (= {(investmentAmount / 100000000).toFixed(1)}억원)
@@ -163,62 +163,55 @@ export default function AllocationTable({
         </table>
       </div>
 
-      {/* Mobile card list */}
+      {/* Mobile card list — Toss style enlarged */}
       <div className="md:hidden divide-y divide-card-border">
         {calcResults.map(({ stock, calc }) => (
-          <div key={stock.id} className="px-4 py-3">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="text-[10px] font-medium text-primary-fg bg-primary px-1.5 py-0.5 rounded flex-shrink-0">
-                  {stock.category}
-                </span>
-                <span className="text-xs font-medium text-foreground truncate">{stock.name}</span>
+          <div key={stock.id} className="px-5 py-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <span className="text-[9px] font-bold text-primary leading-none">{stock.category}</span>
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[15px] font-semibold text-foreground truncate">{stock.name}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{formatPercent(stock.targetWeight)} · {stock.currentPrice ? formatNumber(calc.quantity) + "주" : "현재가 필요"}</div>
+                </div>
               </div>
-              <span className="text-xs text-muted-foreground ml-2 flex-shrink-0">
-                {formatPercent(stock.targetWeight)}
-              </span>
+              <div className="text-right flex-shrink-0">
+                <div className="text-[15px] font-bold">{formatNumber(calc.investAmount)}원</div>
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px]">
-              <div className="flex justify-between">
-                <span className="text-muted">투자금액</span>
-                <span>{formatNumber(calc.investAmount)}원</span>
+            <div className="flex items-center gap-3 text-xs ml-[52px]">
+              <div className="flex-1 bg-accent-green-bg rounded-xl px-3 py-2.5 text-center">
+                <div className="text-[10px] text-muted mb-0.5">월배당</div>
+                <div className="text-sm font-bold text-accent-green">{formatNumber(calc.monthlyDividend)}원</div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted">매수수량</span>
-                <span className="font-mono">
-                  {stock.currentPrice ? formatNumber(calc.quantity) + "주" : "-"}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted">월배당</span>
-                <span className="text-accent-green">{formatNumber(calc.monthlyDividend)}원</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted">연배당</span>
-                <span className="text-accent-green">{formatNumber(calc.annualDividend)}원</span>
+              <div className="flex-1 bg-accent-green-bg rounded-xl px-3 py-2.5 text-center">
+                <div className="text-[10px] text-muted mb-0.5">연배당</div>
+                <div className="text-sm font-bold text-accent-green">{formatNumber(calc.annualDividend)}원</div>
               </div>
             </div>
           </div>
         ))}
-        {/* Mobile totals */}
-        <div className="px-4 py-3 bg-primary/10">
-          <div className="text-xs font-bold text-primary mb-2">합계</div>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] font-medium">
-            <div className="flex justify-between">
-              <span className="text-muted">투자금액</span>
-              <span className="text-primary">{formatNumber(totals.investAmount)}원</span>
+        {/* Mobile totals — Toss style large summary */}
+        <div className="px-5 py-6 bg-primary/5">
+          <div className="text-xs font-bold text-primary mb-4">합계</div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="text-[11px] text-muted mb-1">총 투자금액</div>
+              <div className="text-lg font-bold text-primary">{formatNumber(totals.investAmount)}원</div>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted">매수수량</span>
-              <span className="text-primary font-mono">{formatNumber(totals.quantity)}주</span>
+            <div>
+              <div className="text-[11px] text-muted mb-1">총 매수수량</div>
+              <div className="text-lg font-bold text-primary font-mono">{formatNumber(totals.quantity)}주</div>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted">월배당</span>
-              <span className="text-accent-green">{formatNumber(totals.monthlyDividend)}원</span>
+            <div>
+              <div className="text-[11px] text-muted mb-1">월배당 합계</div>
+              <div className="text-lg font-bold text-accent-green">{formatNumber(totals.monthlyDividend)}원</div>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted">연배당</span>
-              <span className="text-accent-green">{formatNumber(totals.annualDividend)}원</span>
+            <div>
+              <div className="text-[11px] text-muted mb-1">연배당 합계</div>
+              <div className="text-lg font-bold text-accent-green">{formatNumber(totals.annualDividend)}원</div>
             </div>
           </div>
         </div>

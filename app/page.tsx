@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { Portfolio, PortfolioStock } from "@/app/lib/types";
+import { formatNumber } from "@/app/lib/portfolioCalc";
 import {
   getPortfolios,
   savePortfolio,
@@ -19,6 +20,8 @@ import PortfolioSummary from "@/app/components/PortfolioSummary";
 import GrowthReport from "@/app/components/GrowthReport";
 import AddStockModal from "@/app/components/AddStockModal";
 import BalloonTooltip from "@/app/components/BalloonTooltip";
+
+type MobileTab = "portfolio" | "allocation" | "summary" | "growth";
 
 const DEFAULT_STOCKS: PortfolioStock[] = [
   {
@@ -89,6 +92,13 @@ const DEFAULT_STOCKS: PortfolioStock[] = [
   },
 ];
 
+const MOBILE_TABS: { key: MobileTab; label: string; icon: string }[] = [
+  { key: "portfolio", label: "종목", icon: "M3 3h7v7H3V3zm11 0h7v7h-7V3zm0 11h7v7h-7v-7zM3 14h7v7H3v-7z" },
+  { key: "allocation", label: "배분", icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
+  { key: "summary", label: "요약", icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" },
+  { key: "growth", label: "성장", icon: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" },
+];
+
 export default function HomePage() {
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -100,6 +110,7 @@ export default function HomePage() {
   const [mounted, setMounted] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [saveFlash, setSaveFlash] = useState(false);
+  const [mobileTab, setMobileTab] = useState<MobileTab>("portfolio");
   const { resetGuide } = useHelp();
 
   useEffect(() => {
@@ -109,7 +120,6 @@ export default function HomePage() {
       setPortfolios(stored);
       setActiveId(stored[0].id);
     } else {
-      // Create default demo portfolio
       const demo = createPortfolio("내 ETF 포트폴리오");
       demo.stocks = DEFAULT_STOCKS;
       demo.investmentAmount = 100000000;
@@ -227,26 +237,62 @@ export default function HomePage() {
 
   return (
     <>
-      <div className="min-h-screen bg-background">
-        {/* Header */}
-        <header className="bg-primary text-primary-fg sticky top-0 z-30 shadow-md">
-          <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden flex-shrink-0">
-                <Image src="/logo.jpg" alt="로고" width={32} height={32} className="w-full h-full object-cover mix-blend-multiply" />
+      <div className="min-h-screen bg-background md:pb-0 pb-20">
+        {/* Header — Mobile: Toss-style minimal white / Desktop: full colored */}
+        <header className="sticky top-0 z-30">
+          {/* Desktop header */}
+          <div className="hidden md:block bg-primary text-primary-fg shadow-md">
+            <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                  <Image src="/logo.jpg" alt="로고" width={32} height={32} className="w-full h-full object-cover mix-blend-multiply" />
+                </div>
+                <div>
+                  <h1 className="text-sm font-bold leading-tight">ETF 포트폴리오 매니저</h1>
+                  <p className="text-xs text-primary-fg-muted/60 leading-tight">
+                    종목 검색 - 비중 설정 - 자동 계산 - Excel 내보내기
+                  </p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-xs sm:text-sm font-bold leading-tight">ETF 포트폴리오 매니저</h1>
-                <p className="hidden sm:block text-xs text-primary-fg-muted/60 leading-tight">
-                  종목 검색 - 비중 설정 - 자동 계산 - Excel 내보내기
-                </p>
-              </div>
+            </div>
+          </div>
+          {/* Mobile header — Toss style clean white */}
+          <div className="md:hidden bg-card-bg border-b border-card-border">
+            <div className="px-5 py-3 flex items-center justify-between">
+              <h1 className="text-base font-bold text-foreground">내 투자</h1>
+              {activePortfolio && (
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={handleSave}
+                    className={`p-2 rounded-full transition-colors ${saveFlash ? "text-accent-green bg-accent-green-bg" : "text-muted-foreground hover:bg-table-hover"}`}
+                  >
+                    {saveFlash ? (
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                      </svg>
+                    )}
+                  </button>
+                  <button
+                    onClick={handleExport}
+                    disabled={exporting || activePortfolio.stocks.length === 0}
+                    className="p-2 rounded-full text-muted-foreground hover:bg-table-hover disabled:opacity-30 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </header>
 
         <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-5">
-          {/* Portfolio tabs */}
+          {/* Portfolio tabs — Desktop: full tabs + buttons / Mobile: horizontal scroll */}
           <div data-help-step="main-tabs" className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2">
             <div className="flex items-center gap-2 flex-wrap flex-1 min-w-0 overflow-x-auto">
               {portfolios.map((p) => (
@@ -320,9 +366,9 @@ export default function HomePage() {
               )}
             </div>
 
-            {/* Save & Export buttons */}
+            {/* Desktop Save & Export buttons */}
             {activePortfolio && (
-              <div className="flex items-center gap-2 flex-shrink-0 self-end sm:self-auto">
+              <div className="hidden md:flex items-center gap-2 flex-shrink-0">
                 <button
                   onClick={handleSave}
                   className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-lg border transition-colors ${
@@ -372,33 +418,82 @@ export default function HomePage() {
 
           {activePortfolio ? (
             <>
-              {/* Portfolio composition table */}
-              <div data-help-step="main-table">
-                <PortfolioTable
-                  key={activePortfolio.id}
-                  stocks={activePortfolio.stocks}
-                  onUpdate={handleStocksChange}
-                  onAddClick={() => setShowAddModal(true)}
-                  onEditClick={handleEditStock}
-                />
+              {/* Desktop: all sections visible */}
+              <div className="hidden md:block space-y-5">
+                <div data-help-step="main-table">
+                  <PortfolioTable
+                    key={activePortfolio.id}
+                    stocks={activePortfolio.stocks}
+                    onUpdate={handleStocksChange}
+                    onAddClick={() => setShowAddModal(true)}
+                    onEditClick={handleEditStock}
+                  />
+                </div>
+                <div data-help-step="main-allocation">
+                  <AllocationTable portfolio={activePortfolio} onInvestmentAmountChange={handleAmountChange} />
+                </div>
+                <div data-help-step="main-summary">
+                  <PortfolioSummary portfolio={activePortfolio} />
+                </div>
+                <div data-help-step="main-growth">
+                  <GrowthReport portfolio={activePortfolio} />
+                </div>
               </div>
 
-              {/* Allocation calculation table */}
-              <div data-help-step="main-allocation">
-                <AllocationTable
-                  portfolio={activePortfolio}
-                  onInvestmentAmountChange={handleAmountChange}
-                />
-              </div>
+              {/* Mobile: Toss-style hero card + active tab */}
+              <div className="md:hidden space-y-3">
+                {/* Hero Asset Summary Card */}
+                {(() => {
+                  const stks = activePortfolio.stocks;
+                  const totalWeight = stks.reduce((s, st) => s + st.targetWeight, 0);
+                  const wdr = stks.length > 0
+                    ? stks.reduce((s, st) => s + st.targetWeight * st.dividendRate, 0) / (totalWeight || 1)
+                    : 0;
+                  const annDiv = Math.round(activePortfolio.investmentAmount * wdr);
+                  const monDiv = Math.round(annDiv / 12);
+                  return (
+                    <div className="bg-card-bg rounded-2xl shadow-sm p-5">
+                      <div className="text-xs text-muted-foreground mb-1">{activePortfolio.name}</div>
+                      <div className="text-2xl font-bold text-foreground mb-4">
+                        {formatNumber(activePortfolio.investmentAmount)}원
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="bg-accent-green-bg rounded-xl px-3 py-2.5 text-center">
+                          <div className="text-[10px] text-muted mb-0.5">월배당</div>
+                          <div className="text-sm font-bold text-accent-green">{formatNumber(monDiv)}원</div>
+                        </div>
+                        <div className="bg-accent-green-bg rounded-xl px-3 py-2.5 text-center">
+                          <div className="text-[10px] text-muted mb-0.5">연배당</div>
+                          <div className="text-sm font-bold text-accent-green">{formatNumber(annDiv)}원</div>
+                        </div>
+                        <div className="bg-primary/5 rounded-xl px-3 py-2.5 text-center">
+                          <div className="text-[10px] text-muted mb-0.5">종목</div>
+                          <div className="text-sm font-bold text-primary">{stks.length}개</div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
 
-              {/* Summary and export */}
-              <div data-help-step="main-summary">
-                <PortfolioSummary portfolio={activePortfolio} />
-              </div>
-
-              {/* Asset growth forecast report */}
-              <div data-help-step="main-growth">
-                <GrowthReport portfolio={activePortfolio} />
+                {/* Active tab content */}
+                {mobileTab === "portfolio" && (
+                  <PortfolioTable
+                    key={activePortfolio.id}
+                    stocks={activePortfolio.stocks}
+                    onUpdate={handleStocksChange}
+                    onAddClick={() => setShowAddModal(true)}
+                    onEditClick={handleEditStock}
+                  />
+                )}
+                {mobileTab === "allocation" && (
+                  <AllocationTable portfolio={activePortfolio} onInvestmentAmountChange={handleAmountChange} />
+                )}
+                {mobileTab === "summary" && (
+                  <PortfolioSummary portfolio={activePortfolio} />
+                )}
+                {mobileTab === "growth" && (
+                  <GrowthReport portfolio={activePortfolio} />
+                )}
               </div>
             </>
           ) : (
@@ -414,9 +509,36 @@ export default function HomePage() {
           )}
         </main>
 
-        <footer className="mt-12 py-6 text-center text-xs text-muted border-t border-card-border">
+        {/* Desktop footer */}
+        <footer className="hidden md:block mt-12 py-6 text-center text-xs text-muted border-t border-card-border">
           ETF 포트폴리오 매니저 - 시세는 네이버 증권 기준 (장 마감 후 갱신)
         </footer>
+
+        {/* Mobile bottom navigation bar — Toss style */}
+        {activePortfolio && (
+          <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-card-bg/95 backdrop-blur-md border-t border-card-border safe-area-bottom">
+            <div className="flex items-stretch h-16">
+              {MOBILE_TABS.map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setMobileTab(tab.key)}
+                  className={`flex-1 flex flex-col items-center justify-center gap-1 transition-colors ${
+                    mobileTab === tab.key
+                      ? "text-primary"
+                      : "text-muted"
+                  }`}
+                >
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={mobileTab === tab.key ? 2.5 : 1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d={tab.icon} />
+                  </svg>
+                  <span className={`text-[11px] ${mobileTab === tab.key ? "font-bold" : "font-medium"}`}>
+                    {tab.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </nav>
+        )}
       </div>
 
       {showAddModal && (

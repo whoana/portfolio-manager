@@ -121,21 +121,27 @@ export default function AddStockModal({ onAdd, onClose, initialStock }: AddStock
   );
 
   return (
-    <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm sm:p-4">
-      <div className="bg-card-bg rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-lg max-h-[85vh] sm:max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-card-border">
-          <h2 className="text-base font-bold text-primary">
+    <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm sm:p-4">
+      <div className="bg-card-bg rounded-t-3xl sm:rounded-2xl shadow-2xl w-full sm:max-w-lg max-h-[90vh] sm:max-h-[90vh] overflow-y-auto">
+        {/* Drag handle — mobile only */}
+        <div className="sm:hidden flex justify-center pt-3 pb-1">
+          <div className="w-10 h-1 rounded-full bg-muted/40" />
+        </div>
+        <div className="flex items-center justify-between px-6 py-3 sm:py-4 border-b border-card-border">
+          <h2 className="text-base font-bold text-foreground sm:text-primary">
             {initialStock ? "종목 수정" : "종목 추가"}
           </h2>
           <button
             onClick={onClose}
-            className="text-muted hover:text-muted-foreground text-xl leading-none"
+            className="w-8 h-8 flex items-center justify-center rounded-full bg-table-hover text-muted-foreground hover:bg-card-border transition-colors"
           >
-            x
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
 
-        <div className="px-6 py-4 space-y-4">
+        <div className="px-6 py-5 space-y-5">
           {/* Stock search */}
           <div>
             <label className="block text-xs font-medium text-muted-foreground mb-1">
@@ -204,16 +210,17 @@ export default function AddStockModal({ onAdd, onClose, initialStock }: AddStock
           {field("선정근거", "rationale", "textarea", undefined, "예: 장기 배당 성장 이력...")}
         </div>
 
-        <div className="flex gap-2 px-6 py-4 border-t border-card-border">
+        {/* BottomCTA style buttons */}
+        <div className="flex gap-2.5 px-6 py-5 border-t border-card-border bg-card-bg">
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 text-sm font-medium text-muted-foreground border border-input-border rounded-lg hover:bg-table-hover transition-colors"
+            className="flex-1 py-3 text-sm font-medium text-muted-foreground bg-table-hover rounded-xl hover:bg-card-border transition-colors"
           >
             취소
           </button>
           <button
             onClick={handleSubmit}
-            className="flex-1 py-2.5 text-sm font-bold text-primary-fg bg-primary rounded-lg hover:bg-primary/90 transition-colors"
+            className="flex-[2] py-3 text-sm font-bold text-primary-fg bg-primary rounded-xl hover:bg-primary/90 transition-colors"
           >
             {initialStock ? "저장" : "추가"}
           </button>

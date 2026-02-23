@@ -1,4 +1,4 @@
-export type ThemeName = "claude" | "dark" | "classic";
+export type ThemeName = "claude" | "dark" | "classic" | "toss";
 
 const THEME_KEY = "etf_theme";
 const HELP_KEY = "etf_help_enabled";
@@ -6,7 +6,7 @@ const HELP_KEY = "etf_help_enabled";
 export function getSavedTheme(): ThemeName {
   try {
     const v = localStorage.getItem(THEME_KEY);
-    if (v === "claude" || v === "dark" || v === "classic") return v;
+    if (v === "claude" || v === "dark" || v === "classic" || v === "toss") return v;
   } catch {}
   return "claude";
 }

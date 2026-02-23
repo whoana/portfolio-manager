@@ -80,6 +80,32 @@
   --color-warning-border: 253 230 138; /* #FDE68A amber-200 */
 }
 
+/* ── Theme: Toss (토스 스타일) ── */
+[data-theme="toss"] {
+  --color-primary: 49 130 246;       /* #3182F6 토스 블루 */
+  --color-primary-hover: 27 100 218; /* #1B64DA */
+  --color-primary-fg: 255 255 255;   /* white */
+  --color-primary-fg-muted: 255 255 255;
+  --color-primary-badge: 255 255 255;
+  --color-background: 243 244 246;   /* #F3F4F6 cool gray */
+  --color-foreground: 25 31 40;      /* #191F28 */
+  --color-card-bg: 255 255 255;      /* #FFFFFF */
+  --color-card-border: 241 243 245;  /* #F1F3F5 매우 연한 */
+  --color-table-hover: 249 250 251;  /* #F9FAFB */
+  --color-muted: 176 184 193;        /* #B0B8C1 */
+  --color-muted-fg: 139 149 161;     /* #8B95A1 */
+  --color-input-border: 209 213 219; /* #D1D5DB */
+  --color-input-highlight: 240 244 255; /* #F0F4FF */
+  --color-accent-green: 34 197 94;   /* #22C55E */
+  --color-accent-green-bg: 240 253 244; /* #F0FDF4 */
+  --color-accent-red: 240 68 82;     /* #F04452 */
+  --color-accent-red-bg: 255 240 241; /* #FFF0F1 */
+  --color-thead-accent: 27 100 218;  /* #1B64DA */
+  --color-warning-bg: 255 248 225;   /* #FFF8E1 */
+  --color-warning-fg: 245 158 11;    /* #F59E0B */
+  --color-warning-border: 253 230 138; /* #FDE68A */
+}
+
 :root {
   color-scheme: light;
 }

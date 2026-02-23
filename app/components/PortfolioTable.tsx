@@ -81,7 +81,7 @@ export default function PortfolioTable({
   };
 
   return (
-    <div className="bg-card-bg rounded-xl border border-card-border overflow-hidden">
+    <div className="bg-card-bg rounded-xl md:rounded-xl rounded-2xl md:border border-card-border overflow-hidden md:shadow-none shadow-sm">
       <div className="flex items-center justify-between px-5 py-4 border-b border-card-border">
         <div className="flex items-center gap-3">
           <h2 className="text-sm font-bold text-primary">자산배분 전략</h2>
@@ -91,7 +91,7 @@ export default function PortfolioTable({
             </span>
           )}
           {!weightOver && stocks.length > 0 && (
-            <span className="text-xs text-muted">
+            <span className="hidden md:inline text-xs text-muted">
               비중 합계: {formatPercent(totalWeight)}
             </span>
           )}
@@ -100,16 +100,18 @@ export default function PortfolioTable({
           {stocks.length > 0 && (
             <button
               onClick={refreshAllPrices}
+              aria-label="전체 시세 갱신"
               className="text-xs px-3 py-1.5 rounded-lg border border-card-border hover:bg-table-hover text-muted-foreground transition-colors"
             >
-              전체 시세 갱신
+              <span className="hidden md:inline">전체 시세 갱신</span>
+              <span className="md:hidden">갱신</span>
             </button>
           )}
           <button
             onClick={onAddClick}
             className="text-xs px-3 py-1.5 rounded-lg bg-primary text-primary-fg hover:bg-primary/90 font-medium transition-colors"
           >
-            + 종목 추가
+            + <span className="hidden md:inline">종목 </span>추가
           </button>
         </div>
       </div>
@@ -220,60 +222,56 @@ export default function PortfolioTable({
             </table>
           </div>
 
-          {/* Mobile card list */}
+          {/* Mobile card list — Toss ListRow style */}
           <div className="md:hidden divide-y divide-card-border">
             {stocks.map((stock) => {
               const isLoading = loadingCodes.has(stock.code);
+              const categoryColors: Record<string, string> = {
+                "배당": "bg-blue-500",
+                "고배당": "bg-indigo-500",
+                "성장": "bg-emerald-500",
+                "안전판": "bg-slate-400",
+                "채권": "bg-amber-500",
+                "원자재": "bg-orange-500",
+              };
+              const dotColor = categoryColors[stock.category] || "bg-primary";
               return (
                 <div
                   key={stock.id}
                   onClick={() => onEditClick(stock)}
-                  className="px-4 py-3 active:bg-table-hover/50 cursor-pointer"
+                  className="flex items-center gap-3.5 px-5 py-5 active:bg-table-hover/50 cursor-pointer transition-colors"
                 >
-                  <div className="flex items-center justify-between mb-1.5">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-[10px] font-medium text-primary-fg bg-primary px-1.5 py-0.5 rounded flex-shrink-0">
-                        {stock.category}
-                      </span>
-                      <span className="text-xs font-medium text-foreground truncate">{stock.name}</span>
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteStock(stock.id);
-                      }}
-                      className="text-muted hover:text-accent-red text-xs ml-2 flex-shrink-0"
-                    >
-                      x
-                    </button>
+                  {/* Left: colored category circle */}
+                  <div className={`w-11 h-11 rounded-full ${dotColor} flex items-center justify-center flex-shrink-0`}>
+                    <span className="text-[10px] font-bold text-white leading-none">{stock.category}</span>
                   </div>
-                  <div className="flex items-center justify-between text-[11px]">
-                    <div className="flex items-center gap-3 text-muted-foreground">
+                  {/* Center: name + meta */}
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[15px] font-semibold text-foreground truncate">{stock.name}</div>
+                    <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                       <span className="font-mono">{stock.code}</span>
-                      <span className={weightOver ? "text-accent-red" : ""}>{formatPercent(stock.targetWeight)}</span>
-                      <span className="text-accent-green">{formatPercent(stock.dividendRate)}</span>
+                      <span>·</span>
+                      <span className={weightOver ? "text-accent-red font-medium" : ""}>{formatPercent(stock.targetWeight)}</span>
+                      <span>·</span>
+                      <span className="text-accent-green font-medium">{formatPercent(stock.dividendRate)}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs">
+                  </div>
+                  {/* Right: price + chevron */}
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <div className="text-right">
+                      <div className="text-[15px] font-bold">
                         {isLoading ? (
-                          <span className="inline-block w-3 h-3 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                          <span className="inline-block w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                         ) : stock.currentPrice ? (
                           formatNumber(stock.currentPrice) + "원"
                         ) : (
-                          <span className="text-muted">-</span>
+                          <span className="text-muted text-xs">-</span>
                         )}
-                      </span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          refreshPrice(stock);
-                        }}
-                        disabled={isLoading}
-                        className="text-muted hover:text-primary disabled:opacity-30 text-sm"
-                      >
-                        ↻
-                      </button>
+                      </div>
                     </div>
+                    <svg className="w-4 h-4 text-muted/50 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
                   </div>
                 </div>
               );

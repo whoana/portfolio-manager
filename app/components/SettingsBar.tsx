@@ -8,6 +8,7 @@ const THEMES: { name: ThemeName; label: string }[] = [
   { name: "claude", label: "Claude" },
   { name: "dark", label: "Dark" },
   { name: "classic", label: "Classic" },
+  { name: "toss", label: "Toss" },
 ];
 
 export default function SettingsBar() {
