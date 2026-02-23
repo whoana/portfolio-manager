@@ -233,7 +233,7 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-                <Image src="/logo.jpg" alt="로고" width={32} height={32} className="w-full h-full object-cover" />
+                <Image src="/logo.jpg" alt="로고" width={32} height={32} className="w-full h-full object-cover mix-blend-multiply" />
               </div>
               <div>
                 <h1 className="text-sm font-bold leading-tight">ETF 포트폴리오 매니저</h1>
