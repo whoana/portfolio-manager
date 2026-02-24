@@ -557,6 +557,11 @@ export default function HomePage() {
       )}
 
       <BalloonTooltip steps={MAIN_STEPS} />
+
+      {/* Credit watermark — bottom-right */}
+      <div className="fixed bottom-[72px] right-3 text-[10px] text-muted/40 z-10 pointer-events-none md:bottom-2">
+        made by claude &amp; whoana since 2026
+      </div>
     </>
   );
 }
