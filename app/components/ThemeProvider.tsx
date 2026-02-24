@@ -10,7 +10,7 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: "claude",
+  theme: "toss",
   setTheme: () => {},
 });
 

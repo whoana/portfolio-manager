@@ -8,7 +8,7 @@ export function getSavedTheme(): ThemeName {
     const v = localStorage.getItem(THEME_KEY);
     if (v === "claude" || v === "dark" || v === "classic" || v === "toss") return v;
   } catch {}
-  return "claude";
+  return "toss";
 }
 
 export function saveTheme(theme: ThemeName): void {

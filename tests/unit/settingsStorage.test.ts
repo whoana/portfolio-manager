@@ -20,8 +20,8 @@ describe("settingsStorage", () => {
   });
 
   describe("theme", () => {
-    it("기본값은 claude이다", () => {
-      expect(getSavedTheme()).toBe("claude");
+    it("기본값은 toss이다", () => {
+      expect(getSavedTheme()).toBe("toss");
     });
 
     it("저장한 테마를 읽는다", () => {
@@ -29,9 +29,9 @@ describe("settingsStorage", () => {
       expect(getSavedTheme()).toBe("dark");
     });
 
-    it("유효하지 않은 값이면 claude를 반환한다", () => {
+    it("유효하지 않은 값이면 toss를 반환한다", () => {
       lsMock.setItem("etf_theme", "invalid");
-      expect(getSavedTheme()).toBe("claude");
+      expect(getSavedTheme()).toBe("toss");
     });
 
     it("classic 테마를 저장하고 읽는다", () => {
