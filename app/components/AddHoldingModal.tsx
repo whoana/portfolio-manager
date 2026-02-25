@@ -1,33 +1,30 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { PortfolioStock, StockSearchResult } from "@/app/lib/types";
+import { HoldingItem, StockSearchResult } from "@/app/lib/types";
 import { getStockPrice } from "@/app/lib/naverFinance";
 import { formatNumber } from "@/app/lib/portfolioCalc";
 import StockSearch from "./StockSearch";
 import { CATEGORY_OPTIONS } from "@/app/lib/constants";
 
-interface AddStockModalProps {
-  onAdd: (stock: PortfolioStock) => void;
+interface AddHoldingModalProps {
+  onAdd: (item: HoldingItem) => void;
   onClose: () => void;
-  initialStock?: PortfolioStock; // 수정 모드 시 전달
+  initialItem?: HoldingItem;
 }
 
-export default function AddStockModal({ onAdd, onClose, initialStock }: AddStockModalProps) {
+export default function AddHoldingModal({ onAdd, onClose, initialItem }: AddHoldingModalProps) {
   const [selected, setSelected] = useState<StockSearchResult | null>(
-    initialStock ? { name: initialStock.name, code: initialStock.code } : null
+    initialItem ? { name: initialItem.name, code: initialItem.code } : null
   );
-  const targetWeightRef = useRef<HTMLInputElement>(null);
+  const quantityRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
-    category: initialStock ? initialStock.category : "배당",
-    targetWeight: initialStock ? (initialStock.targetWeight * 100).toFixed(1) : "",
-    dividendRate: initialStock ? (initialStock.dividendRate * 100).toFixed(1) : "",
-    strategy: initialStock ? (initialStock.strategy ?? "") : "",
-    analysis: initialStock ? (initialStock.analysis ?? "") : "",
-    rationale: initialStock ? (initialStock.rationale ?? "") : "",
+    category: initialItem?.category ?? "배당",
+    quantity: initialItem ? String(initialItem.quantity) : "",
+    avgPrice: initialItem ? String(initialItem.avgPrice) : "",
   });
   const [selectedPrice, setSelectedPrice] = useState<number | undefined>(
-    initialStock?.currentPrice
+    initialItem?.currentPrice
   );
   const [priceLoading, setPriceLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -39,25 +36,24 @@ export default function AddStockModal({ onAdd, onClose, initialStock }: AddStock
     try {
       const result = await getStockPrice(stock.code);
       setSelectedPrice(result.price);
-      // ETF 분배율(TTM) 자동 채움 — 빈 칸일 때만
-      if (result.dividendYield != null && !form.dividendRate) {
-        setForm((prev) => ({ ...prev, dividendRate: result.dividendYield!.toFixed(2) }));
+      if (!form.avgPrice) {
+        setForm((prev) => ({ ...prev, avgPrice: String(result.price) }));
       }
     } catch {
-      // 가격 조회 실패 시 무시 - PortfolioTable에서 재조회 가능
+      // ignore
     } finally {
       setPriceLoading(false);
     }
-    setTimeout(() => targetWeightRef.current?.focus(), 50);
+    setTimeout(() => quantityRef.current?.focus(), 50);
   };
 
   const validate = () => {
     const errs: Record<string, string> = {};
     if (!selected) errs.stock = "종목을 선택해주세요.";
-    const w = parseFloat(form.targetWeight);
-    if (isNaN(w) || w <= 0 || w > 100) errs.targetWeight = "0~100 사이 숫자를 입력하세요.";
-    const d = parseFloat(form.dividendRate);
-    if (isNaN(d) || d < 0 || d > 100) errs.dividendRate = "0~100 사이 숫자를 입력하세요.";
+    const q = parseInt(form.quantity, 10);
+    if (isNaN(q) || q <= 0) errs.quantity = "1 이상의 정수를 입력하세요.";
+    const p = parseFloat(form.avgPrice);
+    if (isNaN(p) || p <= 0) errs.avgPrice = "0보다 큰 금액을 입력하세요.";
     return errs;
   };
 
@@ -69,66 +65,27 @@ export default function AddStockModal({ onAdd, onClose, initialStock }: AddStock
     }
     if (!selected) return;
 
-    const stock: PortfolioStock = {
-      id: initialStock ? initialStock.id : `stock_${Date.now()}`,
+    const item: HoldingItem = {
+      id: initialItem ? initialItem.id : `holding_${Date.now()}`,
       category: form.category,
       name: selected.name,
       code: selected.code,
-      targetWeight: parseFloat(form.targetWeight) / 100,
-      dividendRate: parseFloat(form.dividendRate) / 100,
+      quantity: parseInt(form.quantity, 10),
+      avgPrice: parseFloat(form.avgPrice),
       currentPrice: selectedPrice,
-      strategy: form.strategy,
-      analysis: form.analysis,
-      rationale: form.rationale,
     };
-    onAdd(stock);
+    onAdd(item);
   };
-
-  const field = (
-    label: string,
-    key: keyof typeof form,
-    type: "text" | "number" | "textarea" = "text",
-    suffix?: string,
-    placeholder?: string
-  ) => (
-    <div>
-      <label className="block text-xs font-medium text-muted-foreground mb-1">{label}</label>
-      <div className="relative">
-        {type === "textarea" ? (
-          <textarea
-            value={form[key]}
-            onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-            placeholder={placeholder}
-            rows={2}
-            className="w-full px-3 py-2 text-sm border border-input-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary resize-none"
-          />
-        ) : (
-          <input
-            type={type}
-            value={form[key]}
-            onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-            placeholder={placeholder}
-            className="w-full px-3 py-2 pr-8 text-sm border border-input-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-          />
-        )}
-        {suffix && (
-          <span className="absolute right-3 top-2.5 text-muted text-xs">{suffix}</span>
-        )}
-      </div>
-      {errors[key] && <p className="mt-1 text-xs text-accent-red">{errors[key]}</p>}
-    </div>
-  );
 
   return (
     <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm sm:p-4">
-      <div className="bg-card-bg rounded-t-3xl sm:rounded-2xl shadow-2xl w-full sm:max-w-lg max-h-[90vh] sm:max-h-[90vh] overflow-y-auto">
-        {/* Drag handle — mobile only */}
+      <div className="bg-card-bg rounded-t-3xl sm:rounded-2xl shadow-2xl w-full sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <div className="sm:hidden flex justify-center pt-3 pb-1">
           <div className="w-10 h-1 rounded-full bg-muted/40" />
         </div>
         <div className="flex items-center justify-between px-6 py-3 sm:py-4 border-b border-card-border">
           <h2 className="text-base font-bold text-foreground sm:text-primary">
-            {initialStock ? "종목 수정" : "종목 추가"}
+            {initialItem ? "보유 내역 수정" : "보유 내역 추가"}
           </h2>
           <button
             onClick={onClose}
@@ -184,32 +141,44 @@ export default function AddStockModal({ onAdd, onClose, initialStock }: AddStock
             </select>
           </div>
 
-          {/* Weight and Dividend */}
+          {/* Quantity and Avg Price */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">목표비중 (%)</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">
+                보유수량 <span className="text-accent-red">*</span>
+              </label>
               <div className="relative">
                 <input
-                  ref={targetWeightRef}
+                  ref={quantityRef}
                   type="number"
-                  value={form.targetWeight}
-                  onChange={(e) => setForm({ ...form, targetWeight: e.target.value })}
-                  placeholder="예: 30"
+                  value={form.quantity}
+                  onChange={(e) => setForm({ ...form, quantity: e.target.value })}
+                  placeholder="예: 100"
                   className="w-full px-3 py-2 pr-8 text-sm border border-input-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
                 />
-                <span className="absolute right-3 top-2.5 text-muted text-xs">%</span>
+                <span className="absolute right-3 top-2.5 text-muted text-xs">주</span>
               </div>
-              {errors.targetWeight && <p className="mt-1 text-xs text-accent-red">{errors.targetWeight}</p>}
+              {errors.quantity && <p className="mt-1 text-xs text-accent-red">{errors.quantity}</p>}
             </div>
-            {field("연배당률 (%)", "dividendRate", "number", "%", "예: 3.5")}
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">
+                평균매수단가 <span className="text-accent-red">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  value={form.avgPrice}
+                  onChange={(e) => setForm({ ...form, avgPrice: e.target.value })}
+                  placeholder="예: 12500"
+                  className="w-full px-3 py-2 pr-8 text-sm border border-input-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                />
+                <span className="absolute right-3 top-2.5 text-muted text-xs">원</span>
+              </div>
+              {errors.avgPrice && <p className="mt-1 text-xs text-accent-red">{errors.avgPrice}</p>}
+            </div>
           </div>
-
-          {field("전략특성", "strategy", "text", undefined, "예: 미국 배당 성장주 ETF")}
-          {field("핵심역할", "analysis", "textarea", undefined, "예: 안정적인 배당 수익 확보")}
-          {field("선정근거", "rationale", "textarea", undefined, "예: 장기 배당 성장 이력...")}
         </div>
 
-        {/* BottomCTA style buttons */}
         <div className="flex gap-2.5 px-6 py-5 border-t border-card-border bg-card-bg">
           <button
             onClick={onClose}
@@ -221,7 +190,7 @@ export default function AddStockModal({ onAdd, onClose, initialStock }: AddStock
             onClick={handleSubmit}
             className="flex-[2] py-3 text-sm font-bold text-primary-fg bg-primary rounded-xl hover:bg-primary/90 transition-colors"
           >
-            {initialStock ? "저장" : "추가"}
+            {initialItem ? "저장" : "추가"}
           </button>
         </div>
       </div>

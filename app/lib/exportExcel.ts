@@ -1,7 +1,8 @@
 import ExcelJS from "exceljs";
-import { Portfolio } from "./types";
-import { calcStockAllocation, calcPortfolioTotals } from "./portfolioCalc";
+import { Portfolio, HoldingItem } from "./types";
+import { calcStockAllocation, calcPortfolioTotals, formatNumber } from "./portfolioCalc";
 import { calcGrowthReport, DEFAULT_GROWTH_PARAMS } from "./growthCalc";
+import { evaluateHolding, evaluateAllHoldings, calcCategoryEvaluations } from "./holdingsCalc";
 
 const HEADER_FILL: ExcelJS.Fill = {
   type: "pattern",
@@ -61,7 +62,7 @@ function applyDataStyle(
   else cell.alignment = { vertical: "middle" };
 }
 
-export async function exportPortfolioExcel(portfolio: Portfolio): Promise<void> {
+export async function exportPortfolioExcel(portfolio: Portfolio, holdings?: HoldingItem[]): Promise<void> {
   const workbook = new ExcelJS.Workbook();
   workbook.creator = "ETF Portfolio Manager";
   workbook.created = new Date();
@@ -680,6 +681,138 @@ export async function exportPortfolioExcel(portfolio: Portfolio): Promise<void> 
     applyDataStyle(row.getCell(1), undefined, undefined, "left");
     applyDataStyle(row.getCell(2), EDITABLE_FILL);
   });
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Sheet 4: 보유 내역 (holdings가 있을 때만)
+  // ─────────────────────────────────────────────────────────────────────
+  if (holdings && holdings.length > 0) {
+    const sheetHoldings = workbook.addWorksheet("보유 내역");
+    sheetHoldings.getColumn(1).width = 12;
+    sheetHoldings.getColumn(2).width = 30;
+    sheetHoldings.getColumn(3).width = 14;
+    sheetHoldings.getColumn(4).width = 10;
+    sheetHoldings.getColumn(5).width = 14;
+    sheetHoldings.getColumn(6).width = 14;
+    sheetHoldings.getColumn(7).width = 16;
+
+    // 제목
+    sheetHoldings.mergeCells("A1:G1");
+    const holdTitleCell = sheetHoldings.getCell("A1");
+    holdTitleCell.value = `보유 내역 — ${portfolio.name}`;
+    holdTitleCell.font = { bold: true, size: 16, color: { argb: "FF2C3E6B" } };
+    holdTitleCell.alignment = { horizontal: "center", vertical: "middle" };
+    sheetHoldings.getRow(1).height = 32;
+
+    sheetHoldings.getRow(2).height = 8;
+
+    // 헤더
+    const holdHeaderRow = sheetHoldings.getRow(3);
+    holdHeaderRow.height = 22;
+    ["구분", "종목", "종목코드", "수량", "평단가", "현재가", "평가액"].forEach((label, i) => {
+      holdHeaderRow.getCell(i + 1).value = label;
+    });
+    applyHeaderStyle(holdHeaderRow, 1, 7);
+
+    // 데이터
+    const holdDataStart = 4;
+    const sortedHoldings = [...holdings].sort((a, b) => a.category.localeCompare(b.category));
+    let holdRowNum = holdDataStart;
+    let lastCat = "";
+
+    sortedHoldings.forEach((item) => {
+      if (item.category !== lastCat && lastCat !== "") {
+        // Category subtotal
+        const catItems = sortedHoldings.filter((h) => h.category === lastCat);
+        const catEval = catItems.reduce((s, h) => s + h.quantity * (h.currentPrice || 0), 0);
+        const subtotalRow = sheetHoldings.getRow(holdRowNum);
+        subtotalRow.height = 20;
+        sheetHoldings.mergeCells(`A${holdRowNum}:C${holdRowNum}`);
+        const stLabel = subtotalRow.getCell(1);
+        stLabel.value = `${lastCat} 소계`;
+        applyDataStyle(stLabel, SUMMARY_LABEL_FILL, undefined, "right");
+        stLabel.font = BOLD_FONT;
+        for (let c = 4; c <= 6; c++) {
+          applyDataStyle(subtotalRow.getCell(c), SUMMARY_LABEL_FILL);
+        }
+        const stVal = subtotalRow.getCell(7);
+        stVal.value = catEval;
+        applyDataStyle(stVal, SUMMARY_LABEL_FILL, "#,##0", "right");
+        stVal.font = BOLD_FONT;
+        holdRowNum++;
+      }
+      lastCat = item.category;
+
+      const ev = evaluateHolding(item);
+      const row = sheetHoldings.getRow(holdRowNum);
+      row.height = 20;
+      row.getCell(1).value = item.category;
+      row.getCell(2).value = item.name;
+      row.getCell(3).value = item.code;
+      row.getCell(4).value = item.quantity;
+      row.getCell(5).value = item.avgPrice;
+      row.getCell(6).value = item.currentPrice || 0;
+      row.getCell(7).value = {
+        formula: `D${holdRowNum}*F${holdRowNum}`,
+        result: ev.evalAmount,
+      };
+
+      applyDataStyle(row.getCell(1), undefined, undefined, "center");
+      applyDataStyle(row.getCell(2));
+      applyDataStyle(row.getCell(3), undefined, undefined, "center");
+      applyDataStyle(row.getCell(4), undefined, "#,##0", "right");
+      applyDataStyle(row.getCell(5), undefined, "#,##0", "right");
+      applyDataStyle(row.getCell(6), EDITABLE_FILL, "#,##0", "right");
+      applyDataStyle(row.getCell(7), undefined, "#,##0", "right");
+      holdRowNum++;
+    });
+
+    // Last category subtotal
+    if (lastCat !== "") {
+      const catItems = sortedHoldings.filter((h) => h.category === lastCat);
+      const catEval = catItems.reduce((s, h) => s + h.quantity * (h.currentPrice || 0), 0);
+      const subtotalRow = sheetHoldings.getRow(holdRowNum);
+      subtotalRow.height = 20;
+      sheetHoldings.mergeCells(`A${holdRowNum}:C${holdRowNum}`);
+      const stLabel = subtotalRow.getCell(1);
+      stLabel.value = `${lastCat} 소계`;
+      applyDataStyle(stLabel, SUMMARY_LABEL_FILL, undefined, "right");
+      stLabel.font = BOLD_FONT;
+      for (let c = 4; c <= 6; c++) {
+        applyDataStyle(subtotalRow.getCell(c), SUMMARY_LABEL_FILL);
+      }
+      const stVal = subtotalRow.getCell(7);
+      stVal.value = catEval;
+      applyDataStyle(stVal, SUMMARY_LABEL_FILL, "#,##0", "right");
+      stVal.font = BOLD_FONT;
+      holdRowNum++;
+    }
+
+    // 합계 행
+    const { totalInvest, totalEval } = evaluateAllHoldings(holdings);
+    const holdTotalRow = sheetHoldings.getRow(holdRowNum);
+    holdTotalRow.height = 22;
+    sheetHoldings.mergeCells(`A${holdRowNum}:C${holdRowNum}`);
+    const holdTotalLabel = holdTotalRow.getCell(1);
+    holdTotalLabel.value = "합계";
+    applyDataStyle(holdTotalLabel, HEADER_FILL, undefined, "center");
+    holdTotalLabel.font = HEADER_FONT;
+
+    for (let c = 4; c <= 5; c++) {
+      applyDataStyle(holdTotalRow.getCell(c), HEADER_FILL);
+    }
+
+    const holdInvestCell = holdTotalRow.getCell(5);
+    holdInvestCell.value = totalInvest;
+    applyDataStyle(holdInvestCell, HEADER_FILL, "#,##0", "right");
+    holdInvestCell.font = HEADER_FONT;
+
+    applyDataStyle(holdTotalRow.getCell(6), HEADER_FILL);
+
+    const holdEvalCell = holdTotalRow.getCell(7);
+    holdEvalCell.value = totalEval;
+    applyDataStyle(holdEvalCell, HEADER_FILL, "#,##0", "right");
+    holdEvalCell.font = HEADER_FONT;
+  }
 
   // ─────────────────────────────────────────────────────────────────────
   // 다운로드

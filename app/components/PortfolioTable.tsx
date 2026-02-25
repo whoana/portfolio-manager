@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { PortfolioStock } from "@/app/lib/types";
 import { getStockPrice } from "@/app/lib/naverFinance";
 import { formatNumber, formatPercent } from "@/app/lib/portfolioCalc";
+import { CATEGORY_BG_COLORS } from "@/app/lib/constants";
 
 interface PortfolioTableProps {
   stocks: PortfolioStock[];
@@ -226,15 +227,7 @@ export default function PortfolioTable({
           <div className="md:hidden divide-y divide-card-border">
             {stocks.map((stock) => {
               const isLoading = loadingCodes.has(stock.code);
-              const categoryColors: Record<string, string> = {
-                "배당": "bg-blue-500",
-                "고배당": "bg-indigo-500",
-                "성장": "bg-emerald-500",
-                "안전판": "bg-slate-400",
-                "채권": "bg-amber-500",
-                "원자재": "bg-orange-500",
-              };
-              const dotColor = categoryColors[stock.category] || "bg-primary";
+              const dotColor = CATEGORY_BG_COLORS[stock.category] || "bg-primary";
               return (
                 <div
                   key={stock.id}

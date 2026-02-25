@@ -25,6 +25,22 @@ export interface StockSearchResult {
   code: string;
 }
 
+export interface HoldingItem {
+  id: string;              // holding_${Date.now()}
+  category: string;        // 구분 (배당, 고배당, 성장, 안전판, 채권, 원자재, 기타)
+  name: string;            // 종목명
+  code: string;            // 종목코드
+  quantity: number;        // 보유수량
+  avgPrice: number;        // 평균매수단가 (원)
+  currentPrice?: number;   // 현재가 (API 조회)
+}
+
+export interface PortfolioHoldings {
+  portfolioId: string;     // Portfolio.id와 매칭
+  items: HoldingItem[];
+  updatedAt: string;
+}
+
 export interface StockCalcResult {
   investAmount: number;
   quantity: number;

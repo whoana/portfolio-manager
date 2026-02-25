@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { Portfolio, PortfolioStock } from "@/app/lib/types";
+import { Portfolio, PortfolioStock, HoldingItem, PortfolioHoldings } from "@/app/lib/types";
 import { formatNumber } from "@/app/lib/portfolioCalc";
 import {
   getPortfolios,
@@ -10,6 +10,11 @@ import {
   deletePortfolio,
   createPortfolio,
 } from "@/app/lib/portfolioStorage";
+import {
+  getHoldings,
+  saveHoldings,
+  deleteHoldings,
+} from "@/app/lib/holdingsStorage";
 import { exportPortfolioExcel } from "@/app/lib/exportExcel";
 import { useHelp } from "@/app/components/HelpProvider";
 import { MAIN_STEPS } from "@/app/lib/helpSteps";
@@ -19,9 +24,15 @@ import AllocationTable from "@/app/components/AllocationTable";
 import PortfolioSummary from "@/app/components/PortfolioSummary";
 import GrowthReport from "@/app/components/GrowthReport";
 import AddStockModal from "@/app/components/AddStockModal";
+import AddHoldingModal from "@/app/components/AddHoldingModal";
+import HoldingsTable from "@/app/components/HoldingsTable";
+import HoldingsSummary from "@/app/components/HoldingsSummary";
+import WeightComparisonChart from "@/app/components/WeightComparisonChart";
+import CsvImportModal from "@/app/components/CsvImportModal";
 import BalloonTooltip from "@/app/components/BalloonTooltip";
+import { exportHoldingsTemplate, exportHoldingsToCsv, downloadCsv } from "@/app/lib/csvUtils";
 
-type MobileTab = "portfolio" | "allocation" | "summary" | "growth";
+type MobileTab = "portfolio" | "allocation" | "summary" | "growth" | "holdings";
 
 const DEFAULT_STOCKS: PortfolioStock[] = [
   {
@@ -97,6 +108,7 @@ const MOBILE_TABS: { key: MobileTab; label: string; icon: string }[] = [
   { key: "allocation", label: "배분", icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" },
   { key: "summary", label: "요약", icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" },
   { key: "growth", label: "성장", icon: "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" },
+  { key: "holdings", label: "보유", icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" },
 ];
 
 export default function HomePage() {
@@ -111,6 +123,10 @@ export default function HomePage() {
   const [exporting, setExporting] = useState(false);
   const [saveFlash, setSaveFlash] = useState(false);
   const [mobileTab, setMobileTab] = useState<MobileTab>("portfolio");
+  const [holdings, setHoldings] = useState<PortfolioHoldings | null>(null);
+  const [showAddHoldingModal, setShowAddHoldingModal] = useState(false);
+  const [editingHolding, setEditingHolding] = useState<HoldingItem | null>(null);
+  const [showCsvImportModal, setShowCsvImportModal] = useState(false);
   const { resetGuide } = useHelp();
 
   useEffect(() => {
@@ -129,7 +145,18 @@ export default function HomePage() {
     }
   }, []);
 
+  // Load holdings when activeId changes
+  useEffect(() => {
+    if (activeId) {
+      const h = getHoldings(activeId);
+      setHoldings(h);
+    } else {
+      setHoldings(null);
+    }
+  }, [activeId]);
+
   const activePortfolio = portfolios.find((p) => p.id === activeId) || null;
+  const holdingItems = holdings?.items || [];
 
   const updateActive = (updated: Portfolio) => {
     const updatedList = portfolios.map((p) =>
@@ -185,6 +212,7 @@ export default function HomePage() {
   const handleDeletePortfolio = (id: string) => {
     if (!confirm("이 포트폴리오를 삭제하시겠습니까?")) return;
     deletePortfolio(id);
+    deleteHoldings(id);
     const updated = portfolios.filter((p) => p.id !== id);
     setPortfolios(updated);
     setActiveId(updated.length > 0 ? updated[0].id : null);
@@ -199,6 +227,51 @@ export default function HomePage() {
     }
   };
 
+  const handleHoldingsChange = (items: HoldingItem[]) => {
+    if (!activeId) return;
+    const updated: PortfolioHoldings = {
+      portfolioId: activeId,
+      items,
+      updatedAt: new Date().toISOString(),
+    };
+    setHoldings(updated);
+    saveHoldings(updated);
+  };
+
+  const handleAddHolding = (item: HoldingItem) => {
+    handleHoldingsChange([...holdingItems, item]);
+    setShowAddHoldingModal(false);
+  };
+
+  const handleEditHolding = (item: HoldingItem) => {
+    setEditingHolding(item);
+  };
+
+  const handleUpdateHolding = (updated: HoldingItem) => {
+    handleHoldingsChange(holdingItems.map((h) => h.id === updated.id ? updated : h));
+    setEditingHolding(null);
+  };
+
+  const handleCsvImport = (items: HoldingItem[], mode: "append" | "replace") => {
+    if (mode === "replace") {
+      handleHoldingsChange(items);
+    } else {
+      handleHoldingsChange([...holdingItems, ...items]);
+    }
+    setShowCsvImportModal(false);
+  };
+
+  const handleExportTemplate = () => {
+    downloadCsv(exportHoldingsTemplate(), "보유내역_양식.csv");
+  };
+
+  const handleExportData = () => {
+    if (!activePortfolio || holdingItems.length === 0) return;
+    const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    const safeName = activePortfolio.name.replace(/[^a-zA-Z0-9가-힣]/g, "_");
+    downloadCsv(exportHoldingsToCsv(holdingItems), `보유내역_${safeName}_${date}.csv`);
+  };
+
   const handleSave = useCallback(() => {
     if (!activePortfolio) return;
     savePortfolio(activePortfolio);
@@ -210,13 +283,13 @@ export default function HomePage() {
     if (!activePortfolio || activePortfolio.stocks.length === 0) return;
     setExporting(true);
     try {
-      await exportPortfolioExcel(activePortfolio);
+      await exportPortfolioExcel(activePortfolio, holdingItems.length > 0 ? holdingItems : undefined);
     } catch {
       // export error handled silently
     } finally {
       setExporting(false);
     }
-  }, [activePortfolio]);
+  }, [activePortfolio, holdingItems]);
 
   const handleNext = () => {
     setShowIntro(false);
@@ -438,6 +511,21 @@ export default function HomePage() {
                 <div data-help-step="main-growth">
                   <GrowthReport portfolio={activePortfolio} />
                 </div>
+                <HoldingsTable
+                  items={holdingItems}
+                  onUpdate={handleHoldingsChange}
+                  onAddClick={() => setShowAddHoldingModal(true)}
+                  onEditClick={handleEditHolding}
+                  onCsvImportClick={() => setShowCsvImportModal(true)}
+                  onExportTemplate={handleExportTemplate}
+                  onExportData={handleExportData}
+                />
+                {holdingItems.length > 0 && (
+                  <HoldingsSummary items={holdingItems} />
+                )}
+                {holdingItems.length > 0 && activePortfolio.stocks.length > 0 && (
+                  <WeightComparisonChart stocks={activePortfolio.stocks} holdings={holdingItems} />
+                )}
               </div>
 
               {/* Mobile: Toss-style hero card + active tab */}
@@ -493,6 +581,25 @@ export default function HomePage() {
                 )}
                 {mobileTab === "growth" && (
                   <GrowthReport portfolio={activePortfolio} />
+                )}
+                {mobileTab === "holdings" && (
+                  <>
+                    <HoldingsTable
+                      items={holdingItems}
+                      onUpdate={handleHoldingsChange}
+                      onAddClick={() => setShowAddHoldingModal(true)}
+                      onEditClick={handleEditHolding}
+                      onCsvImportClick={() => setShowCsvImportModal(true)}
+                      onExportTemplate={handleExportTemplate}
+                      onExportData={handleExportData}
+                    />
+                    {holdingItems.length > 0 && (
+                      <HoldingsSummary items={holdingItems} />
+                    )}
+                    {holdingItems.length > 0 && activePortfolio.stocks.length > 0 && (
+                      <WeightComparisonChart stocks={activePortfolio.stocks} holdings={holdingItems} />
+                    )}
+                  </>
                 )}
               </div>
             </>
@@ -553,6 +660,28 @@ export default function HomePage() {
           initialStock={editingStock}
           onAdd={handleUpdateStock}
           onClose={() => setEditingStock(null)}
+        />
+      )}
+
+      {showAddHoldingModal && (
+        <AddHoldingModal
+          onAdd={handleAddHolding}
+          onClose={() => setShowAddHoldingModal(false)}
+        />
+      )}
+
+      {editingHolding && (
+        <AddHoldingModal
+          initialItem={editingHolding}
+          onAdd={handleUpdateHolding}
+          onClose={() => setEditingHolding(null)}
+        />
+      )}
+
+      {showCsvImportModal && (
+        <CsvImportModal
+          onImport={handleCsvImport}
+          onClose={() => setShowCsvImportModal(false)}
         />
       )}
 
