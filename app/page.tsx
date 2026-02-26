@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import Image from "next/image";
 import { Portfolio, PortfolioStock, HoldingItem, PortfolioHoldings } from "@/app/lib/types";
 import { formatNumber } from "@/app/lib/portfolioCalc";
 import {
@@ -317,9 +316,15 @@ export default function HomePage() {
           <div className="hidden md:block bg-primary text-primary-fg shadow-md">
             <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-                  <Image src="/logo.jpg" alt="로고" width={32} height={32} className="w-full h-full object-cover mix-blend-multiply" />
-                </div>
+                <button
+                  onClick={() => setShowIntro(true)}
+                  className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center bg-primary-fg/10 hover:bg-primary-fg/20 transition-colors"
+                  title="홈으로"
+                >
+                  <svg className="w-4 h-4 text-primary-fg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
+                  </svg>
+                </button>
                 <div>
                   <h1 className="text-sm font-bold leading-tight">ETF 포트폴리오 매니저</h1>
                   <p className="text-xs text-primary-fg-muted/60 leading-tight">
@@ -332,7 +337,17 @@ export default function HomePage() {
           {/* Mobile header — Toss style clean white */}
           <div className="md:hidden bg-card-bg border-b border-card-border">
             <div className="px-5 py-3 flex items-center justify-between">
-              <h1 className="text-base font-bold text-foreground">내 투자</h1>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowIntro(true)}
+                  className="p-1.5 -ml-1.5 rounded-full text-muted-foreground hover:bg-table-hover transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
+                  </svg>
+                </button>
+                <h1 className="text-base font-bold text-foreground">내 투자</h1>
+              </div>
               {activePortfolio && (
                 <div className="flex items-center gap-1">
                   <button
