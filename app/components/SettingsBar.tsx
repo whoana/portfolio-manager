@@ -12,7 +12,11 @@ const THEMES: { name: ThemeName; label: string }[] = [
   { name: "toss", label: "Toss" },
 ];
 
-export default function SettingsBar() {
+interface SettingsBarProps {
+  onDataTransfer?: () => void;
+}
+
+export default function SettingsBar({ onDataTransfer }: SettingsBarProps) {
   const { theme, setTheme } = useTheme();
   const { helpEnabled, setHelpEnabled } = useHelp();
   const [open, setOpen] = useState(false);
@@ -89,6 +93,22 @@ export default function SettingsBar() {
                 ))}
               </div>
             </div>
+
+            {/* Data transfer */}
+            {onDataTransfer && (
+              <>
+                <div className="h-px bg-card-border" />
+                <button
+                  onClick={() => { setOpen(false); onDataTransfer(); }}
+                  className="flex items-center gap-2 w-full px-1 py-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                  </svg>
+                  데이터 관리
+                </button>
+              </>
+            )}
           </div>
         </>
       )}
@@ -133,6 +153,22 @@ export default function SettingsBar() {
             </button>
           ))}
         </div>
+
+        {/* Data transfer */}
+        {onDataTransfer && (
+          <>
+            <div className="w-px h-4 bg-card-border" />
+            <button
+              onClick={onDataTransfer}
+              className="px-2 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-table-hover rounded transition-colors"
+              title="데이터 내보내기/들여오기"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+              </svg>
+            </button>
+          </>
+        )}
       </div>
     </>
   );
