@@ -20,7 +20,7 @@ function makeValidExportFile(overrides?: Partial<ExportFileFormat>): ExportFileF
           stocks: [
             {
               id: "s1",
-              category: "배당",
+              category: "배당성장",
               name: "TIGER 미국배당",
               code: "458730",
               targetWeight: 0.3,
@@ -39,7 +39,7 @@ function makeValidExportFile(overrides?: Partial<ExportFileFormat>): ExportFileF
         {
           portfolioId: "p1",
           items: [
-            { id: "h1", category: "배당", name: "TIGER 미국배당", code: "458730", quantity: 100, avgPrice: 12000 },
+            { id: "h1", category: "배당성장", name: "TIGER 미국배당", code: "458730", quantity: 100, avgPrice: 12000 },
           ],
           updatedAt: "2026-02-26T00:00:00.000Z",
         },
@@ -102,7 +102,7 @@ describe("dataExportImport", () => {
 
     it("portfolios가 배열이 아니면 거부", () => {
       const data = makeValidExportFile();
-      (data.data as Record<string, unknown>).portfolios = "not array";
+      (data.data as unknown as Record<string, unknown>).portfolios = "not array";
       const result = parseImportJson(JSON.stringify(data));
       expect(result.success).toBe(false);
       expect(result.error).toContain("포트폴리오");
@@ -118,7 +118,7 @@ describe("dataExportImport", () => {
 
     it("settings 없어도 기본값으로 처리", () => {
       const data = makeValidExportFile();
-      delete (data.data as Record<string, unknown>).settings;
+      delete (data.data as unknown as Record<string, unknown>).settings;
       const result = parseImportJson(JSON.stringify(data));
       expect(result.success).toBe(true);
       expect(result.data?.settings.theme).toBe("toss");
@@ -126,7 +126,7 @@ describe("dataExportImport", () => {
 
     it("version 누락 시 거부", () => {
       const data = makeValidExportFile();
-      delete (data as Record<string, unknown>).version;
+      delete (data as unknown as Record<string, unknown>).version;
       const result = parseImportJson(JSON.stringify(data));
       expect(result.success).toBe(false);
       expect(result.error).toContain("버전");

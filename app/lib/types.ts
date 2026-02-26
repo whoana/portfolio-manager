@@ -1,6 +1,6 @@
 export interface PortfolioStock {
   id: string;
-  category: string;       // 구분 (배당, 고배당, 성장, 안전판 등)
+  category: string;       // 구분 (배당성장, 고배당, 성장동력, 안전판 등)
   name: string;           // ETF 종목명
   code: string;           // 종목코드
   reutersCode?: string;   // 해외 주식: "AAPL.O", 국내 주식: undefined
@@ -29,7 +29,7 @@ export interface StockSearchResult {
 
 export interface HoldingItem {
   id: string;              // holding_${Date.now()}
-  category: string;        // 구분 (배당, 고배당, 성장, 안전판, 채권, 원자재, 기타)
+  category: string;        // 구분 (배당성장, 고배당, 성장동력, 안전판, 채권, 원자재, 기타)
   name: string;            // 종목명
   code: string;            // 종목코드
   reutersCode?: string;    // 해외 주식: "AAPL.O", 국내 주식: undefined

@@ -37,7 +37,7 @@ describe("holdingsStorage", () => {
       saveHoldings({
         portfolioId: "p1",
         items: [
-          { id: "h1", category: "배당", name: "TIGER", code: "458730", quantity: 100, avgPrice: 12000 },
+          { id: "h1", category: "배당성장", name: "TIGER", code: "458730", quantity: 100, avgPrice: 12000 },
         ],
         updatedAt: new Date().toISOString(),
       });
@@ -57,14 +57,14 @@ describe("holdingsStorage", () => {
       const { saveHoldings, getHoldings } = await importStorage();
       saveHoldings({
         portfolioId: "p1",
-        items: [{ id: "h1", category: "배당", name: "A", code: "111", quantity: 10, avgPrice: 1000 }],
+        items: [{ id: "h1", category: "배당성장", name: "A", code: "111", quantity: 10, avgPrice: 1000 }],
         updatedAt: new Date().toISOString(),
       });
       saveHoldings({
         portfolioId: "p1",
         items: [
-          { id: "h1", category: "배당", name: "A", code: "111", quantity: 10, avgPrice: 1000 },
-          { id: "h2", category: "성장", name: "B", code: "222", quantity: 20, avgPrice: 2000 },
+          { id: "h1", category: "배당성장", name: "A", code: "111", quantity: 10, avgPrice: 1000 },
+          { id: "h2", category: "성장동력", name: "B", code: "222", quantity: 20, avgPrice: 2000 },
         ],
         updatedAt: new Date().toISOString(),
       });
@@ -79,7 +79,7 @@ describe("holdingsStorage", () => {
       const { saveHoldings, deleteHoldings, getHoldings } = await importStorage();
       saveHoldings({
         portfolioId: "p1",
-        items: [{ id: "h1", category: "배당", name: "A", code: "111", quantity: 10, avgPrice: 1000 }],
+        items: [{ id: "h1", category: "배당성장", name: "A", code: "111", quantity: 10, avgPrice: 1000 }],
         updatedAt: new Date().toISOString(),
       });
 
@@ -92,7 +92,7 @@ describe("holdingsStorage", () => {
     it("id가 holding_ 접두사로 생성", async () => {
       const { createHoldingItem } = await importStorage();
       const item = createHoldingItem({
-        category: "배당",
+        category: "배당성장",
         name: "TIGER",
         code: "458730",
         quantity: 100,

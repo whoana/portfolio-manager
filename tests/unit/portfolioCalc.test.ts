@@ -11,7 +11,7 @@ import type { PortfolioStock } from "@/app/lib/types";
 function makeStock(overrides: Partial<PortfolioStock> = {}): PortfolioStock {
   return {
     id: "stock_1",
-    category: "배당",
+    category: "배당성장",
     name: "TIGER 미국S&P500",
     code: "360750",
     targetWeight: 0.3,
@@ -145,15 +145,15 @@ describe("calcPortfolioTotals", () => {
 describe("calcCategoryPositions", () => {
   it("카테고리별 투자금액과 비중을 정확히 계산", () => {
     const stocks = [
-      makeStock({ category: "배당", targetWeight: 0.3 }),
-      makeStock({ id: "s2", category: "배당", targetWeight: 0.2 }),
-      makeStock({ id: "s3", category: "성장", targetWeight: 0.5 }),
+      makeStock({ category: "배당성장", targetWeight: 0.3 }),
+      makeStock({ id: "s2", category: "배당성장", targetWeight: 0.2 }),
+      makeStock({ id: "s3", category: "성장동력", targetWeight: 0.5 }),
     ];
     const result = calcCategoryPositions(stocks, 100_000_000);
 
     expect(result).toHaveLength(2);
-    const dividend = result.find((r) => r.category === "배당");
-    const growth = result.find((r) => r.category === "성장");
+    const dividend = result.find((r) => r.category === "배당성장");
+    const growth = result.find((r) => r.category === "성장동력");
 
     expect(dividend?.amount).toBe(50_000_000);
     expect(dividend?.weight).toBeCloseTo(0.5);
@@ -181,8 +181,8 @@ describe("calcCategoryPositions", () => {
 
   it("투자금액 0이면 amount 모두 0, weight는 정상 계산", () => {
     const stocks = [
-      makeStock({ category: "배당", targetWeight: 0.5 }),
-      makeStock({ id: "s2", category: "성장", targetWeight: 0.5 }),
+      makeStock({ category: "배당성장", targetWeight: 0.5 }),
+      makeStock({ id: "s2", category: "성장동력", targetWeight: 0.5 }),
     ];
     const result = calcCategoryPositions(stocks, 0);
 
@@ -193,13 +193,13 @@ describe("calcCategoryPositions", () => {
 
   it("targetWeight 합이 1 미만이어도 비중은 정규화", () => {
     const stocks = [
-      makeStock({ category: "배당", targetWeight: 0.1 }),
-      makeStock({ id: "s2", category: "성장", targetWeight: 0.3 }),
+      makeStock({ category: "배당성장", targetWeight: 0.1 }),
+      makeStock({ id: "s2", category: "성장동력", targetWeight: 0.3 }),
     ];
     const result = calcCategoryPositions(stocks, 100_000_000);
 
-    const dividend = result.find((r) => r.category === "배당");
-    const growth = result.find((r) => r.category === "성장");
+    const dividend = result.find((r) => r.category === "배당성장");
+    const growth = result.find((r) => r.category === "성장동력");
 
     expect(dividend?.weight).toBeCloseTo(0.25);
     expect(growth?.weight).toBeCloseTo(0.75);

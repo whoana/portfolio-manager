@@ -19,7 +19,7 @@ export default function AddStockModal({ onAdd, onClose, initialStock }: AddStock
   );
   const targetWeightRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
-    category: initialStock ? initialStock.category : "배당",
+    category: initialStock ? initialStock.category : "배당성장",
     targetWeight: initialStock ? (initialStock.targetWeight * 100).toFixed(1) : "",
     dividendRate: initialStock ? (initialStock.dividendRate * 100).toFixed(1) : "",
     strategy: initialStock ? (initialStock.strategy ?? "") : "",

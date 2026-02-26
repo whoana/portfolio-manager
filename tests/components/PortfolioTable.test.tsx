@@ -15,7 +15,7 @@ const mockGetStockPrice = vi.mocked(getStockPrice);
 function makeStock(overrides: Partial<PortfolioStock> = {}): PortfolioStock {
   return {
     id: "stock_1",
-    category: "배당",
+    category: "배당성장",
     name: "TIGER 미국S&P500",
     code: "360750",
     targetWeight: 0.3,

@@ -37,7 +37,7 @@ type MobileTab = "portfolio" | "allocation" | "summary" | "growth" | "holdings";
 const DEFAULT_STOCKS: PortfolioStock[] = [
   {
     id: "demo_1",
-    category: "배당",
+    category: "배당성장",
     name: "TIGER 미국배당다우존스",
     code: "458730",
     targetWeight: 0.3,
@@ -48,7 +48,7 @@ const DEFAULT_STOCKS: PortfolioStock[] = [
   },
   {
     id: "demo_2",
-    category: "배당",
+    category: "배당성장",
     name: "TIGER 코리아배당다우존스",
     code: "0052D0",
     targetWeight: 0.15,
@@ -70,7 +70,7 @@ const DEFAULT_STOCKS: PortfolioStock[] = [
   },
   {
     id: "demo_4",
-    category: "성장",
+    category: "성장동력",
     name: "KODEX 미국S&P500",
     code: "379800",
     targetWeight: 0.12,
@@ -81,7 +81,7 @@ const DEFAULT_STOCKS: PortfolioStock[] = [
   },
   {
     id: "demo_5",
-    category: "성장",
+    category: "성장동력",
     name: "TIGER 미국테크TOP10 INDXX",
     code: "381170",
     targetWeight: 0.08,

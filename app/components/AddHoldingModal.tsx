@@ -19,7 +19,7 @@ export default function AddHoldingModal({ onAdd, onClose, initialItem }: AddHold
   );
   const quantityRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
-    category: initialItem?.category ?? "배당",
+    category: initialItem?.category ?? "배당성장",
     quantity: initialItem ? String(initialItem.quantity) : "",
     avgPrice: initialItem ? String(initialItem.avgPrice) : "",
   });

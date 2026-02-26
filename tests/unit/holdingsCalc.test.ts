@@ -11,7 +11,7 @@ import type { HoldingItem, PortfolioStock } from "@/app/lib/types";
 function makeHolding(overrides: Partial<HoldingItem> = {}): HoldingItem {
   return {
     id: "h1",
-    category: "배당",
+    category: "배당성장",
     name: "TIGER 미국배당다우존스",
     code: "458730",
     quantity: 100,
@@ -24,7 +24,7 @@ function makeHolding(overrides: Partial<HoldingItem> = {}): HoldingItem {
 function makeStock(overrides: Partial<PortfolioStock> = {}): PortfolioStock {
   return {
     id: "s1",
-    category: "배당",
+    category: "배당성장",
     name: "TIGER 미국배당다우존스",
     code: "458730",
     targetWeight: 0.3,
@@ -90,14 +90,14 @@ describe("evaluateAllHoldings", () => {
 describe("calcCategoryEvaluations", () => {
   it("카테고리별 집계", () => {
     const items = [
-      makeHolding({ id: "h1", category: "배당", quantity: 100, avgPrice: 10000, currentPrice: 11000 }),
-      makeHolding({ id: "h2", category: "배당", quantity: 50, avgPrice: 12000, currentPrice: 13000 }),
-      makeHolding({ id: "h3", category: "성장", quantity: 200, avgPrice: 5000, currentPrice: 6000 }),
+      makeHolding({ id: "h1", category: "배당성장", quantity: 100, avgPrice: 10000, currentPrice: 11000 }),
+      makeHolding({ id: "h2", category: "배당성장", quantity: 50, avgPrice: 12000, currentPrice: 13000 }),
+      makeHolding({ id: "h3", category: "성장동력", quantity: 200, avgPrice: 5000, currentPrice: 6000 }),
     ];
     const result = calcCategoryEvaluations(items);
 
     expect(result).toHaveLength(2);
-    const dividend = result.find((r) => r.category === "배당");
+    const dividend = result.find((r) => r.category === "배당성장");
     expect(dividend!.investAmount).toBe(100 * 10000 + 50 * 12000);
     expect(dividend!.evalAmount).toBe(100 * 11000 + 50 * 13000);
   });
@@ -110,17 +110,17 @@ describe("calcCategoryEvaluations", () => {
 describe("compareWeightsByCategory", () => {
   it("목표비중과 실제비중 비교", () => {
     const stocks = [
-      makeStock({ category: "배당", targetWeight: 0.5 }),
-      makeStock({ id: "s2", category: "성장", targetWeight: 0.5 }),
+      makeStock({ category: "배당성장", targetWeight: 0.5 }),
+      makeStock({ id: "s2", category: "성장동력", targetWeight: 0.5 }),
     ];
     const holdings = [
-      makeHolding({ id: "h1", category: "배당", quantity: 100, currentPrice: 10000 }),
-      makeHolding({ id: "h2", category: "성장", quantity: 300, currentPrice: 10000 }),
+      makeHolding({ id: "h1", category: "배당성장", quantity: 100, currentPrice: 10000 }),
+      makeHolding({ id: "h2", category: "성장동력", quantity: 300, currentPrice: 10000 }),
     ];
     const result = compareWeightsByCategory(stocks, holdings);
 
-    const dividend = result.find((r) => r.label === "배당")!;
-    const growth = result.find((r) => r.label === "성장")!;
+    const dividend = result.find((r) => r.label === "배당성장")!;
+    const growth = result.find((r) => r.label === "성장동력")!;
 
     expect(dividend.targetWeight).toBeCloseTo(0.5);
     expect(dividend.actualWeight).toBeCloseTo(0.25);
