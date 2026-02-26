@@ -5,6 +5,10 @@ interface NaverStockBasic {
   symbolCode: string;
   closePrice: string;
   stockEndType: string;
+  stockExchangeType?: {
+    nationType: string;
+    nationCode: string;
+  };
 }
 
 interface NaverIntegration {
@@ -27,6 +31,35 @@ function isOverseasCode(code: string): boolean {
   // 순수 영문자(A-Z)만으로 구성된 코드는 해외 주식 (국내는 6자리 숫자)
   if (/^[A-Za-z]+$/.test(code)) return true;
   return false;
+}
+
+// 국가별 환율 코드 매핑
+const NATION_TO_FX: Record<string, string> = {
+  USA: "FX_USDKRW",
+  JPN: "FX_JPYKRW",
+  HKG: "FX_HKDKRW",
+  GBR: "FX_GBPKRW",
+  CHN: "FX_CNYKRW",
+  EUR: "FX_EURKRW",
+};
+
+const NATION_TO_CURRENCY: Record<string, string> = {
+  USA: "USD", JPN: "JPY", HKG: "HKD", GBR: "GBP", CHN: "CNY", EUR: "EUR",
+};
+
+// 환율 조회
+async function fetchExchangeRate(nationCode: string): Promise<number> {
+  const fxCode = NATION_TO_FX[nationCode];
+  if (!fxCode) return 1; // 매핑 없으면 변환 없이 반환
+  const res = await fetch(
+    `https://api.stock.naver.com/marketindex/exchange/${fxCode}`,
+    { headers: NAVER_HEADERS, next: { revalidate: 0 } }
+  );
+  if (!res.ok) return 1;
+  const data = (await res.json()) as {
+    exchangeInfo?: { calcPrice?: string };
+  };
+  return parseFloat(data.exchangeInfo?.calcPrice || "1");
 }
 
 // 해외 주식 시세 조회 (접미사 없는 코드는 주요 거래소 접미사를 순차 시도)
@@ -84,12 +117,21 @@ export async function GET(
       }
 
       const basicData = (await basicRes.json()) as NaverStockBasic;
-      const price = parseFloat(basicData.closePrice?.replace(/,/g, "") || "0");
+      const priceOriginal = parseFloat(basicData.closePrice?.replace(/,/g, "") || "0");
+
+      // 국가 코드 기반 환율 변환
+      const nationCode = basicData.stockExchangeType?.nationCode || "USA";
+      const exchangeRate = await fetchExchangeRate(nationCode);
+      const price = Math.round(priceOriginal * exchangeRate);
+      const currency = NATION_TO_CURRENCY[nationCode] || "USD";
 
       return NextResponse.json({
         code,
         name: basicData.stockName || code,
         price,
+        priceOriginal,
+        currency,
+        exchangeRate,
       });
     }
 
