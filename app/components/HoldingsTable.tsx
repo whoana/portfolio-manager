@@ -53,7 +53,7 @@ export default function HoldingsTable({
     setLoadingCodes((prev) => new Set(prev).add(item.code));
     setErrorMsg("");
     try {
-      const result = await getStockPrice(item.code);
+      const result = await getStockPrice(item.reutersCode || item.code);
       onUpdate(items.map((h) => h.id === item.id ? { ...h, currentPrice: result.price } : h));
     } catch {
       setErrorMsg(`${item.name} 현재가 조회 실패`);
@@ -70,7 +70,7 @@ export default function HoldingsTable({
     await Promise.all(
       items.map(async (item, i) => {
         try {
-          const result = await getStockPrice(item.code);
+          const result = await getStockPrice(item.reutersCode || item.code);
           updated[i] = { ...item, currentPrice: result.price };
         } catch {
           // keep existing

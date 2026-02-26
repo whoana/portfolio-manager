@@ -47,11 +47,12 @@ export async function GET(request: NextRequest) {
     const data = (await response.json()) as NaverACResponse;
 
     // items is a flat array of NaverACItem objects
-    const items: { name: string; code: string }[] = [];
+    const items: { name: string; code: string; reutersCode?: string }[] = [];
     if (Array.isArray(data.items)) {
       data.items.forEach((item) => {
         if (item.code && item.name) {
-          items.push({ name: item.name, code: item.code });
+          const rc = item.reutersCode && item.reutersCode !== item.code ? item.reutersCode : undefined;
+          items.push({ name: item.name, code: item.code, ...(rc && { reutersCode: rc }) });
         }
       });
     }

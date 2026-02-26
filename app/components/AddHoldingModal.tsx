@@ -15,7 +15,7 @@ interface AddHoldingModalProps {
 
 export default function AddHoldingModal({ onAdd, onClose, initialItem }: AddHoldingModalProps) {
   const [selected, setSelected] = useState<StockSearchResult | null>(
-    initialItem ? { name: initialItem.name, code: initialItem.code } : null
+    initialItem ? { name: initialItem.name, code: initialItem.code, reutersCode: initialItem.reutersCode } : null
   );
   const quantityRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
@@ -34,7 +34,7 @@ export default function AddHoldingModal({ onAdd, onClose, initialItem }: AddHold
     setSelectedPrice(undefined);
     setPriceLoading(true);
     try {
-      const result = await getStockPrice(stock.code);
+      const result = await getStockPrice(stock.reutersCode || stock.code);
       setSelectedPrice(result.price);
       if (!form.avgPrice) {
         setForm((prev) => ({ ...prev, avgPrice: String(result.price) }));
@@ -70,6 +70,7 @@ export default function AddHoldingModal({ onAdd, onClose, initialItem }: AddHold
       category: form.category,
       name: selected.name,
       code: selected.code,
+      ...(selected.reutersCode && { reutersCode: selected.reutersCode }),
       quantity: parseInt(form.quantity, 10),
       avgPrice: parseFloat(form.avgPrice),
       currentPrice: selectedPrice,

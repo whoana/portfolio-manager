@@ -3,6 +3,7 @@ export interface PortfolioStock {
   category: string;       // 구분 (배당, 고배당, 성장, 안전판 등)
   name: string;           // ETF 종목명
   code: string;           // 종목코드
+  reutersCode?: string;   // 해외 주식: "AAPL.O", 국내 주식: undefined
   targetWeight: number;   // 목표비중 (0~1)
   dividendRate: number;   // 연배당률 (0~1)
   strategy: string;       // 전략특성
@@ -23,6 +24,7 @@ export interface Portfolio {
 export interface StockSearchResult {
   name: string;
   code: string;
+  reutersCode?: string;   // 해외 주식: "AAPL.O", 국내 주식: undefined
 }
 
 export interface HoldingItem {
@@ -30,6 +32,7 @@ export interface HoldingItem {
   category: string;        // 구분 (배당, 고배당, 성장, 안전판, 채권, 원자재, 기타)
   name: string;            // 종목명
   code: string;            // 종목코드
+  reutersCode?: string;    // 해외 주식: "AAPL.O", 국내 주식: undefined
   quantity: number;        // 보유수량
   avgPrice: number;        // 평균매수단가 (원)
   currentPrice?: number;   // 현재가 (API 조회)

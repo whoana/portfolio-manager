@@ -41,7 +41,7 @@ export default function PortfolioTable({
     setLoadingCodes((prev) => new Set(prev).add(stock.code));
     setErrorMsg("");
     try {
-      const result = await getStockPrice(stock.code);
+      const result = await getStockPrice(stock.reutersCode || stock.code);
       const updated = stocks.map((s) =>
         s.id === stock.id ? { ...s, currentPrice: result.price } : s
       );
@@ -65,7 +65,7 @@ export default function PortfolioTable({
     await Promise.all(
       stocks.map(async (stock, i) => {
         try {
-          const result = await getStockPrice(stock.code);
+          const result = await getStockPrice(stock.reutersCode || stock.code);
           updatedStocks[i] = { ...stock, currentPrice: result.price };
         } catch {
           // keep existing price

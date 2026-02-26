@@ -32,7 +32,33 @@ export async function GET(
   }
 
   try {
-    // basic + integration API를 병렬 호출
+    const isOverseas = code.includes(".");
+
+    if (isOverseas) {
+      // 해외 주식: api.stock.naver.com 엔드포인트 사용
+      const basicRes = await fetch(`https://api.stock.naver.com/stock/${code}/basic`, {
+        headers: NAVER_HEADERS,
+        next: { revalidate: 0 },
+      });
+
+      if (!basicRes.ok) {
+        return NextResponse.json(
+          { error: "현재가 조회 실패" },
+          { status: basicRes.status }
+        );
+      }
+
+      const basicData = (await basicRes.json()) as NaverStockBasic;
+      const price = parseFloat(basicData.closePrice?.replace(/,/g, "") || "0");
+
+      return NextResponse.json({
+        code,
+        name: basicData.stockName || code,
+        price,
+      });
+    }
+
+    // 국내 주식: basic + integration API를 병렬 호출
     const [basicRes, integrationRes] = await Promise.all([
       fetch(`https://m.stock.naver.com/api/stock/${code}/basic`, {
         headers: NAVER_HEADERS,

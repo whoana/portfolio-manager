@@ -15,7 +15,7 @@ interface AddStockModalProps {
 
 export default function AddStockModal({ onAdd, onClose, initialStock }: AddStockModalProps) {
   const [selected, setSelected] = useState<StockSearchResult | null>(
-    initialStock ? { name: initialStock.name, code: initialStock.code } : null
+    initialStock ? { name: initialStock.name, code: initialStock.code, reutersCode: initialStock.reutersCode } : null
   );
   const targetWeightRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
@@ -37,7 +37,7 @@ export default function AddStockModal({ onAdd, onClose, initialStock }: AddStock
     setSelectedPrice(undefined);
     setPriceLoading(true);
     try {
-      const result = await getStockPrice(stock.code);
+      const result = await getStockPrice(stock.reutersCode || stock.code);
       setSelectedPrice(result.price);
       // ETF 분배율(TTM) 자동 채움 — 빈 칸일 때만
       if (result.dividendYield != null && !form.dividendRate) {
@@ -74,6 +74,7 @@ export default function AddStockModal({ onAdd, onClose, initialStock }: AddStock
       category: form.category,
       name: selected.name,
       code: selected.code,
+      ...(selected.reutersCode && { reutersCode: selected.reutersCode }),
       targetWeight: parseFloat(form.targetWeight) / 100,
       dividendRate: parseFloat(form.dividendRate) / 100,
       currentPrice: selectedPrice,
