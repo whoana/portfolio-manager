@@ -181,6 +181,7 @@ export default function InvestmentCards() {
   const [hlVisible, setHlVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [direction, setDirection] = useState(1);
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setMounted(true), 50);
@@ -210,14 +211,14 @@ export default function InvestmentCards() {
     [current, anim]
   );
 
-  // Auto-advance: 2초 간격
+  // Auto-advance: 3초 간격
   useEffect(() => {
-    if (anim !== "idle") return;
+    if (anim !== "idle" || paused) return;
     const timer = setTimeout(() => {
       navigate(1);
-    }, 2000);
+    }, 3000);
     return () => clearTimeout(timer);
-  }, [anim, navigate]);
+  }, [anim, navigate, paused]);
 
   const card = cards[displayIdx];
 
@@ -498,18 +499,26 @@ export default function InvestmentCards() {
           ←
         </button>
 
-        <div
+        <button
+          onClick={() => setPaused((p) => !p)}
           style={{
-            fontSize: 12,
-            fontFamily: "'Space Mono', monospace",
-            color: "rgba(255,255,255,0.25)",
-            letterSpacing: 1,
-            minWidth: 50,
-            textAlign: "center",
+            width: 44,
+            height: 44,
+            borderRadius: 14,
+            border: `1.5px solid ${paused ? `${card.accent}60` : `${card.accent}30`}`,
+            background: paused ? `${card.accent}18` : `${card.accent}08`,
+            color: card.accent,
+            fontSize: 16,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            transition: "all 0.35s cubic-bezier(0.22, 1, 0.36, 1)",
+            fontWeight: 300,
           }}
         >
-          {current + 1} / {cards.length}
-        </div>
+          {paused ? "▶" : "❚❚"}
+        </button>
 
         <button
           onClick={() => navigate(1)}
