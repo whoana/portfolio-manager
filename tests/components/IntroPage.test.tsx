@@ -36,18 +36,11 @@ describe("IntroPage", () => {
     store.set("etf_help_enabled", "false");
   });
 
-  it("제목이 렌더링된다", () => {
+  it("투자 카드 첫 번째 카드가 렌더링된다", () => {
     renderIntro();
     expect(
-      screen.getByText("복리의 마법, 장기 투자의 힘")
+      screen.getByText("그래, 그럼 잘 찾아왔어.")
     ).toBeInTheDocument();
-  });
-
-  it("3개 카드가 모두 렌더링된다", () => {
-    renderIntro();
-    expect(screen.getByText("복리의 힘")).toBeInTheDocument();
-    expect(screen.getByText("시간이 가장 큰 자산")).toBeInTheDocument();
-    expect(screen.getByText("체계적인 포트폴리오 관리")).toBeInTheDocument();
   });
 
   it("복리 시뮬레이션 섹션이 렌더링된다", () => {
