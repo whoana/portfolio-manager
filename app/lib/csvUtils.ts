@@ -103,11 +103,15 @@ export function parseCsvToHoldings(csvText: string): CsvParseResult {
       continue;
     }
 
+    // 6번째 필드가 있으면 reutersCode로 사용
+    const reutersCode = fields[5]?.trim() || undefined;
+
     items.push({
       id: `holding_${Date.now()}_${i}`,
       category: category.trim(),
       name: name.trim(),
       code: code.trim(),
+      ...(reutersCode && { reutersCode }),
       quantity: Math.floor(quantity),
       avgPrice: Math.round(avgPrice),
     });
@@ -124,11 +128,11 @@ function escapeCsvField(value: string): string {
 }
 
 export function exportHoldingsTemplate(): string {
-  return "\uFEFF구분,종목,종목코드,수량,평단가\n";
+  return "\uFEFF구분,종목,종목코드,수량,평단가,해외코드\n";
 }
 
 export function exportHoldingsToCsv(items: HoldingItem[]): string {
-  const header = "구분,종목,종목코드,수량,평단가";
+  const header = "구분,종목,종목코드,수량,평단가,해외코드";
   const rows = items.map((item) =>
     [
       escapeCsvField(item.category),
@@ -136,6 +140,7 @@ export function exportHoldingsToCsv(items: HoldingItem[]): string {
       escapeCsvField(item.code),
       String(item.quantity),
       String(item.avgPrice),
+      item.reutersCode ? escapeCsvField(item.reutersCode) : "",
     ].join(",")
   );
   return "\uFEFF" + [header, ...rows].join("\n") + "\n";
