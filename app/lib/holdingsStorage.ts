@@ -2,12 +2,36 @@ import { PortfolioHoldings, HoldingItem } from "./types";
 
 const STORAGE_KEY = "etf_holdings";
 
+const CATEGORY_MIGRATION: Record<string, string> = {
+  "배당": "배당성장",
+  "성장": "성장동력",
+};
+
+function migrateHoldingCategories(all: PortfolioHoldings[]): PortfolioHoldings[] {
+  let changed = false;
+  const migrated = all.map((h) => ({
+    ...h,
+    items: h.items.map((item) => {
+      const newCat = CATEGORY_MIGRATION[item.category];
+      if (newCat) {
+        changed = true;
+        return { ...item, category: newCat };
+      }
+      return item;
+    }),
+  }));
+  if (changed) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+  }
+  return migrated;
+}
+
 export function getAllHoldings(): PortfolioHoldings[] {
   if (typeof window === "undefined") return [];
   try {
     const data = localStorage.getItem(STORAGE_KEY);
     if (!data) return [];
-    return JSON.parse(data) as PortfolioHoldings[];
+    return migrateHoldingCategories(JSON.parse(data) as PortfolioHoldings[]);
   } catch {
     return [];
   }
