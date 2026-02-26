@@ -210,12 +210,12 @@ export default function InvestmentCards() {
     [current, anim]
   );
 
-  // Auto-advance: 1초 간격
+  // Auto-advance: 2초 간격
   useEffect(() => {
     if (anim !== "idle") return;
     const timer = setTimeout(() => {
       navigate(1);
-    }, 1000);
+    }, 2000);
     return () => clearTimeout(timer);
   }, [anim, navigate]);
 
@@ -467,18 +467,72 @@ export default function InvestmentCards() {
         </div>
       </div>
 
-      {/* Card counter */}
+      {/* Navigation */}
       <div
         style={{
-          fontSize: 12,
-          fontFamily: "'Space Mono', monospace",
-          color: "rgba(255,255,255,0.25)",
-          letterSpacing: 1,
-          textAlign: "center",
-          marginTop: 20,
+          display: "flex",
+          alignItems: "center",
+          gap: 16,
+          marginTop: 24,
         }}
       >
-        {current + 1} / {cards.length}
+        <button
+          onClick={() => navigate(-1)}
+          disabled={anim !== "idle"}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 14,
+            border: `1.5px solid ${card.accent}30`,
+            background: `${card.accent}08`,
+            color: card.accent,
+            fontSize: 18,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            transition: "all 0.35s cubic-bezier(0.22, 1, 0.36, 1)",
+            fontWeight: 300,
+          }}
+        >
+          ←
+        </button>
+
+        <div
+          style={{
+            fontSize: 12,
+            fontFamily: "'Space Mono', monospace",
+            color: "rgba(255,255,255,0.25)",
+            letterSpacing: 1,
+            minWidth: 50,
+            textAlign: "center",
+          }}
+        >
+          {current + 1} / {cards.length}
+        </div>
+
+        <button
+          onClick={() => navigate(1)}
+          disabled={anim !== "idle"}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 14,
+            border: "none",
+            background: `linear-gradient(135deg, ${card.accent}, ${card.accentGlow})`,
+            color: "#fff",
+            fontSize: 18,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            transition: "all 0.35s cubic-bezier(0.22, 1, 0.36, 1)",
+            boxShadow: `0 4px 24px ${card.accentGlow}35`,
+            fontWeight: 300,
+          }}
+        >
+          →
+        </button>
       </div>
     </div>
   );
