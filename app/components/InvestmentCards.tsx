@@ -216,7 +216,7 @@ export default function InvestmentCards() {
     if (anim !== "idle" || paused) return;
     const timer = setTimeout(() => {
       navigate(1);
-    }, 3000);
+    }, 3500);
     return () => clearTimeout(timer);
   }, [anim, navigate, paused]);
 
