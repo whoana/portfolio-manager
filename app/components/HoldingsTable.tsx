@@ -326,31 +326,31 @@ export default function HoldingsTable({
             </table>
           </div>
 
-          {/* Mobile card list — Toss ListRow style */}
+          {/* Mobile card list — 3-line layout */}
           <div className="md:hidden divide-y divide-card-border">
             {items.map((item) => {
               const ev = evaluateHolding(item);
               const isLoading = loadingCodes.has(item.code);
               const dotColor = CATEGORY_BG_COLORS[item.category] || "bg-primary";
+              const catLines = item.category.length > 2
+                ? [item.category.slice(0, Math.ceil(item.category.length / 2)), item.category.slice(Math.ceil(item.category.length / 2))]
+                : [item.category];
               return (
                 <div
                   key={item.id}
                   onClick={() => onEditClick(item)}
-                  className="flex items-center gap-4 px-5 py-[18px] active:bg-table-hover/50 cursor-pointer transition-colors"
+                  className="flex items-start gap-4 px-5 py-[18px] active:bg-table-hover/50 cursor-pointer transition-colors"
                 >
-                  <div className={`w-12 h-12 rounded-full ${dotColor} flex items-center justify-center flex-shrink-0`}>
-                    <span className="text-[11px] font-bold text-white leading-none">{item.category}</span>
+                  <div className={`w-14 h-14 rounded-xl ${dotColor} flex flex-col items-center justify-center flex-shrink-0 mt-0.5`}>
+                    {catLines.map((line, i) => (
+                      <span key={i} className="text-[11px] font-bold text-white leading-tight">{line}</span>
+                    ))}
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 space-y-1">
+                    {/* Line 1: stock name */}
                     <div className="text-[17px] font-semibold text-foreground truncate">{item.name}</div>
-                    <div className="flex items-center gap-2 mt-1.5 text-[13px] text-muted-foreground">
-                      <span className="font-mono">{item.code}</span>
-                      <span>·</span>
-                      <span>{formatNumber(item.quantity)}주</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <div className="text-right">
+                    {/* Line 2: eval amount + P&L */}
+                    <div className="flex items-baseline justify-end gap-2">
                       <div className="text-[17px] font-bold">
                         {isLoading ? (
                           <span className="inline-block w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
@@ -358,13 +358,20 @@ export default function HoldingsTable({
                           formatNumber(ev.evalAmount) + "원"
                         )}
                       </div>
-                      <div className={`text-[13px] font-medium ${profitColor(ev.profitLoss)}`}>
-                        {formatProfitLoss(ev.profitLoss)}원 {formatReturnRate(ev.returnRate)}
-                      </div>
+                      <span className={`text-[13px] font-medium ${profitColor(ev.profitLoss)}`}>
+                        {formatReturnRate(ev.returnRate)}
+                      </span>
                     </div>
-                    <svg className="w-5 h-5 text-muted/40 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
+                    {/* Line 3: code · quantity · P&L amount */}
+                    <div className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
+                      <span className="font-mono">{item.code}</span>
+                      <span>·</span>
+                      <span>{formatNumber(item.quantity)}주</span>
+                      <span>·</span>
+                      <span className={`font-medium ${profitColor(ev.profitLoss)}`}>
+                        {formatProfitLoss(ev.profitLoss)}원
+                      </span>
+                    </div>
                   </div>
                 </div>
               );

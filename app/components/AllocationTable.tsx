@@ -163,36 +163,44 @@ export default function AllocationTable({
         </table>
       </div>
 
-      {/* Mobile card list — Toss style enlarged */}
+      {/* Mobile card list — 3-line layout */}
       <div className="md:hidden divide-y divide-card-border">
-        {calcResults.map(({ stock, calc }) => (
-          <div key={stock.id} className="px-5 py-[18px]">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-4 min-w-0">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <span className="text-[11px] font-bold text-primary leading-none">{stock.category}</span>
+        {calcResults.map(({ stock, calc }) => {
+          const catLines = stock.category.length > 2
+            ? [stock.category.slice(0, Math.ceil(stock.category.length / 2)), stock.category.slice(Math.ceil(stock.category.length / 2))]
+            : [stock.category];
+          return (
+            <div key={stock.id} className="px-5 py-[18px]">
+              <div className="flex items-start gap-4 mb-3">
+                <div className="w-14 h-14 rounded-xl bg-primary/10 flex flex-col items-center justify-center flex-shrink-0 mt-0.5">
+                  {catLines.map((line, i) => (
+                    <span key={i} className="text-[11px] font-bold text-primary leading-tight">{line}</span>
+                  ))}
                 </div>
-                <div className="min-w-0">
+                <div className="flex-1 min-w-0 space-y-1">
+                  {/* Line 1: stock name */}
                   <div className="text-[17px] font-semibold text-foreground truncate">{stock.name}</div>
-                  <div className="text-[13px] text-muted-foreground mt-1">{formatPercent(stock.targetWeight)} · {stock.currentPrice ? formatNumber(calc.quantity) + "주" : "현재가 필요"}</div>
+                  {/* Line 2: investment amount right-aligned */}
+                  <div className="text-[17px] font-bold text-foreground text-right">{formatNumber(calc.investAmount)}원</div>
+                  {/* Line 3: weight · quantity */}
+                  <div className="text-[13px] text-muted-foreground">
+                    {formatPercent(stock.targetWeight)} · {stock.currentPrice ? formatNumber(calc.quantity) + "주" : "현재가 필요"}
+                  </div>
                 </div>
               </div>
-              <div className="text-right flex-shrink-0">
-                <div className="text-[17px] font-bold">{formatNumber(calc.investAmount)}원</div>
+              <div className="flex items-center gap-3 ml-[72px]">
+                <div className="flex-1 bg-accent-green-bg rounded-xl px-3 py-3 text-center">
+                  <div className="text-xs text-muted mb-1">월배당</div>
+                  <div className="text-base font-bold text-accent-green">{formatNumber(calc.monthlyDividend)}원</div>
+                </div>
+                <div className="flex-1 bg-accent-green-bg rounded-xl px-3 py-3 text-center">
+                  <div className="text-xs text-muted mb-1">연배당</div>
+                  <div className="text-base font-bold text-accent-green">{formatNumber(calc.annualDividend)}원</div>
+                </div>
               </div>
             </div>
-            <div className="flex items-center gap-3 ml-16">
-              <div className="flex-1 bg-accent-green-bg rounded-xl px-3 py-3 text-center">
-                <div className="text-xs text-muted mb-1">월배당</div>
-                <div className="text-base font-bold text-accent-green">{formatNumber(calc.monthlyDividend)}원</div>
-              </div>
-              <div className="flex-1 bg-accent-green-bg rounded-xl px-3 py-3 text-center">
-                <div className="text-xs text-muted mb-1">연배당</div>
-                <div className="text-base font-bold text-accent-green">{formatNumber(calc.annualDividend)}원</div>
-              </div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
         {/* Mobile totals — Toss style large summary */}
         <div className="px-5 py-6 bg-primary/5">
           <div className="text-sm font-bold text-primary mb-4">합계</div>

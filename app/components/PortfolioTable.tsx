@@ -223,48 +223,48 @@ export default function PortfolioTable({
             </table>
           </div>
 
-          {/* Mobile card list — Toss ListRow style */}
+          {/* Mobile card list — 3-line layout */}
           <div className="md:hidden divide-y divide-card-border">
             {stocks.map((stock) => {
               const isLoading = loadingCodes.has(stock.code);
               const dotColor = CATEGORY_BG_COLORS[stock.category] || "bg-primary";
+              const catLines = stock.category.length > 2
+                ? [stock.category.slice(0, Math.ceil(stock.category.length / 2)), stock.category.slice(Math.ceil(stock.category.length / 2))]
+                : [stock.category];
               return (
                 <div
                   key={stock.id}
                   onClick={() => onEditClick(stock)}
-                  className="flex items-center gap-4 px-5 py-[18px] active:bg-table-hover/50 cursor-pointer transition-colors"
+                  className="flex items-start gap-4 px-5 py-[18px] active:bg-table-hover/50 cursor-pointer transition-colors"
                 >
-                  {/* Left: colored category circle */}
-                  <div className={`w-12 h-12 rounded-full ${dotColor} flex items-center justify-center flex-shrink-0`}>
-                    <span className="text-[11px] font-bold text-white leading-none">{stock.category}</span>
+                  {/* Left: colored category rounded rect */}
+                  <div className={`w-14 h-14 rounded-xl ${dotColor} flex flex-col items-center justify-center flex-shrink-0 mt-0.5`}>
+                    {catLines.map((line, i) => (
+                      <span key={i} className="text-[11px] font-bold text-white leading-tight">{line}</span>
+                    ))}
                   </div>
-                  {/* Center: name + meta */}
-                  <div className="flex-1 min-w-0">
+                  {/* Right: 3 lines */}
+                  <div className="flex-1 min-w-0 space-y-1">
+                    {/* Line 1: stock name */}
                     <div className="text-[17px] font-semibold text-foreground truncate">{stock.name}</div>
-                    <div className="flex items-center gap-2 mt-1.5 text-[13px] text-muted-foreground">
+                    {/* Line 2: price right-aligned */}
+                    <div className="text-[17px] font-bold text-foreground text-right">
+                      {isLoading ? (
+                        <span className="inline-block w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                      ) : stock.currentPrice ? (
+                        formatNumber(stock.currentPrice) + "원"
+                      ) : (
+                        <span className="text-muted text-sm">-</span>
+                      )}
+                    </div>
+                    {/* Line 3: code · weight · dividend */}
+                    <div className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
                       <span className="font-mono">{stock.code}</span>
                       <span>·</span>
                       <span className={weightOver ? "text-accent-red font-medium" : ""}>{formatPercent(stock.targetWeight)}</span>
                       <span>·</span>
                       <span className="text-accent-green font-medium">{formatPercent(stock.dividendRate)}</span>
                     </div>
-                  </div>
-                  {/* Right: price + chevron */}
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <div className="text-right">
-                      <div className="text-[17px] font-bold">
-                        {isLoading ? (
-                          <span className="inline-block w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                        ) : stock.currentPrice ? (
-                          formatNumber(stock.currentPrice) + "원"
-                        ) : (
-                          <span className="text-muted text-sm">-</span>
-                        )}
-                      </div>
-                    </div>
-                    <svg className="w-5 h-5 text-muted/40 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
                   </div>
                 </div>
               );
