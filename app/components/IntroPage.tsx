@@ -27,7 +27,7 @@ export default function IntroPage({ onNext }: IntroPageProps) {
           <h2 className="font-bold text-[15px] sm:text-sm mb-1 text-foreground">
             복리 시뮬레이션
           </h2>
-          <p className="text-xs text-muted mb-4">
+          <p className="text-xs text-muted-foreground mb-4">
             5,000만원을 연 10%(배당 재투자) 복리로 투자했을 때
           </p>
           <div className="grid grid-cols-3 gap-3">
@@ -36,7 +36,7 @@ export default function IntroPage({ onNext }: IntroPageProps) {
                 key={d.year}
                 className="text-center bg-table-hover rounded-xl sm:rounded-lg py-4 px-2"
               >
-                <div className="text-xs text-muted mb-1">{d.year}년 후</div>
+                <div className="text-xs text-muted-foreground mb-1">{d.year}년 후</div>
                 <div className="font-bold text-sm text-foreground">
                   {d.amount}
                 </div>
@@ -56,7 +56,7 @@ export default function IntroPage({ onNext }: IntroPageProps) {
           >
             포트폴리오 시작하기
           </button>
-          <p className="text-xs text-muted mt-3">
+          <p className="text-xs text-muted-foreground mt-3">
             ETF 포트폴리오를 구성하고 장기 성장을 시뮬레이션하세요
           </p>
         </div>
