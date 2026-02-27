@@ -1,4 +1,4 @@
-import { HoldingItem } from "./types";
+import { HoldingItem, PortfolioStock } from "./types";
 
 export interface CsvParseResult {
   items: HoldingItem[];
@@ -127,8 +127,22 @@ function escapeCsvField(value: string): string {
   return value;
 }
 
-export function exportHoldingsTemplate(): string {
-  return "\uFEFF구분,종목,종목코드,수량,평단가,해외코드\n";
+export function exportHoldingsTemplate(stocks?: PortfolioStock[]): string {
+  const header = "구분,종목,종목코드,수량,평단가,해외코드";
+  if (!stocks || stocks.length === 0) {
+    return "\uFEFF" + header + "\n";
+  }
+  const rows = stocks.map((s) =>
+    [
+      escapeCsvField(s.category),
+      escapeCsvField(s.name),
+      escapeCsvField(s.code),
+      "0",
+      "0",
+      s.reutersCode ? escapeCsvField(s.reutersCode) : "",
+    ].join(",")
+  );
+  return "\uFEFF" + [header, ...rows].join("\n") + "\n";
 }
 
 export function exportHoldingsToCsv(items: HoldingItem[]): string {

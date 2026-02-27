@@ -264,7 +264,7 @@ export default function HomePage() {
   };
 
   const handleExportTemplate = () => {
-    downloadCsv(exportHoldingsTemplate(), "보유내역_양식.csv");
+    downloadCsv(exportHoldingsTemplate(activePortfolio?.stocks), "보유내역_양식.csv");
   };
 
   const handleExportData = () => {
