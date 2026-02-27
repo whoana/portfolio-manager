@@ -15,9 +15,10 @@ const THEMES: { name: ThemeName; label: string }[] = [
 interface SettingsBarProps {
   onDataTransfer?: () => void;
   isIntro?: boolean;
+  inline?: boolean;
 }
 
-export default function SettingsBar({ onDataTransfer, isIntro }: SettingsBarProps) {
+export default function SettingsBar({ onDataTransfer, isIntro, inline }: SettingsBarProps) {
   const { theme, setTheme } = useTheme();
   const { helpEnabled, setHelpEnabled } = useHelp();
   const [open, setOpen] = useState(false);
@@ -25,24 +26,37 @@ export default function SettingsBar({ onDataTransfer, isIntro }: SettingsBarProp
   return (
     <>
       {/* Mobile: gear icon toggle */}
-      <button
-        onClick={() => setOpen((v) => !v)}
-        aria-label="설정"
-        className={`md:hidden fixed z-[70] w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200 ${
-          isIntro ? "top-3 right-3" : "top-[10px] right-[60px]"
-        } ${
-          open
-            ? "bg-primary text-primary-fg shadow-md"
-            : isIntro
-              ? "bg-white/10 backdrop-blur-md text-white/70 hover:bg-white/20 hover:text-white"
-              : "bg-card-bg text-muted-foreground hover:bg-table-hover"
-        }`}
-      >
-        <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      </button>
+      {inline ? (
+        /* Inline mode: plain button in flow (for mobile header) */
+        <button
+          onClick={() => setOpen((v) => !v)}
+          aria-label="설정"
+          className={`p-2 rounded-full transition-colors ${
+            open ? "text-primary" : "text-muted-foreground hover:bg-table-hover"
+          }`}
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </button>
+      ) : isIntro ? (
+        /* Fixed gear icon for intro screen only */
+        <button
+          onClick={() => setOpen((v) => !v)}
+          aria-label="설정"
+          className={`md:hidden fixed z-[70] w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200 top-3 right-3 ${
+            open
+              ? "bg-primary text-primary-fg shadow-md"
+              : "bg-white/10 backdrop-blur-md text-white/70 hover:bg-white/20 hover:text-white"
+          }`}
+        >
+          <svg className="w-[18px] h-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.6}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </button>
+      ) : null}
 
       {/* Mobile: expanded panel */}
       {open && (
@@ -118,8 +132,8 @@ export default function SettingsBar({ onDataTransfer, isIntro }: SettingsBarProp
         </>
       )}
 
-      {/* Desktop: always visible inline bar (unchanged) */}
-      <div className="hidden md:flex fixed top-2 right-4 z-[70] items-center gap-3 bg-card-bg/90 backdrop-blur-sm border border-card-border rounded-lg shadow-sm px-3 py-1.5">
+      {/* Desktop: always visible inline bar (hidden in inline mode) */}
+      {!inline && <div className="hidden md:flex fixed top-2 right-4 z-[70] items-center gap-3 bg-card-bg/90 backdrop-blur-sm border border-card-border rounded-lg shadow-sm px-3 py-1.5">
         {/* Help toggle */}
         <div className="flex items-center gap-1.5">
           <span className="text-xs text-muted-foreground select-none">도움말</span>
@@ -174,7 +188,7 @@ export default function SettingsBar({ onDataTransfer, isIntro }: SettingsBarProp
             </button>
           </>
         )}
-      </div>
+      </div>}
     </>
   );
 }

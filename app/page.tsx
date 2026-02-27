@@ -361,6 +361,7 @@ export default function HomePage() {
               </div>
               {activePortfolio && (
                 <div className="flex items-center gap-1">
+                  <SettingsBar inline onDataTransfer={() => setShowDataTransfer(true)} />
                   <button
                     onClick={handleSave}
                     className={`p-2 rounded-full transition-colors ${saveFlash ? "text-accent-green bg-accent-green-bg" : "text-muted-foreground hover:bg-table-hover"}`}
