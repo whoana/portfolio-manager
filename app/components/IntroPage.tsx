@@ -9,9 +9,9 @@ interface IntroPageProps {
 }
 
 const COMPOUND_DATA = [
-  { year: 10, amount: "1억 6,289만원", growth: "+63%" },
-  { year: 20, amount: "2억 6,533만원", growth: "+165%" },
-  { year: 30, amount: "4억 3,219만원", growth: "+332%" },
+  { year: 10, amount: "9,836만원", growth: "+97%" },
+  { year: 20, amount: "1억 9,348만원", growth: "+287%" },
+  { year: 30, amount: "3억 8,061만원", growth: "+661%" },
 ];
 
 export default function IntroPage({ onNext }: IntroPageProps) {
@@ -28,7 +28,7 @@ export default function IntroPage({ onNext }: IntroPageProps) {
             복리 시뮬레이션
           </h2>
           <p className="text-xs text-muted mb-4">
-            1억원을 연 5% 복리로 투자했을 때
+            5,000만원을 연 7% 복리로 투자했을 때
           </p>
           <div className="grid grid-cols-3 gap-3">
             {COMPOUND_DATA.map((d) => (
