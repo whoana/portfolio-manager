@@ -29,6 +29,8 @@ import HoldingsSummary from "@/app/components/HoldingsSummary";
 import WeightComparisonChart from "@/app/components/WeightComparisonChart";
 import CsvImportModal from "@/app/components/CsvImportModal";
 import BalloonTooltip from "@/app/components/BalloonTooltip";
+import SettingsBar from "@/app/components/SettingsBar";
+import DataTransferModal from "@/app/components/DataTransferModal";
 import { exportHoldingsTemplate, exportHoldingsToCsv, downloadCsv } from "@/app/lib/csvUtils";
 
 type MobileTab = "portfolio" | "allocation" | "summary" | "growth" | "holdings";
@@ -126,6 +128,7 @@ export default function HomePage() {
   const [showAddHoldingModal, setShowAddHoldingModal] = useState(false);
   const [editingHolding, setEditingHolding] = useState<HoldingItem | null>(null);
   const [showCsvImportModal, setShowCsvImportModal] = useState(false);
+  const [showDataTransfer, setShowDataTransfer] = useState(false);
   const { resetGuide } = useHelp();
 
   useEffect(() => {
@@ -304,11 +307,19 @@ export default function HomePage() {
   }
 
   if (showIntro) {
-    return <IntroPage onNext={handleNext} />;
+    return (
+      <>
+        <SettingsBar isIntro onDataTransfer={() => setShowDataTransfer(true)} />
+        <IntroPage onNext={handleNext} />
+        {showDataTransfer && <DataTransferModal onClose={() => setShowDataTransfer(false)} />}
+      </>
+    );
   }
 
   return (
     <>
+      <SettingsBar onDataTransfer={() => setShowDataTransfer(true)} />
+      {showDataTransfer && <DataTransferModal onClose={() => setShowDataTransfer(false)} />}
       <div className="min-h-screen bg-background md:pb-0 pb-20">
         {/* Header — Mobile: Toss-style minimal white / Desktop: full colored */}
         <header className="sticky top-0 z-30">
