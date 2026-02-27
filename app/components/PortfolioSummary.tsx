@@ -74,7 +74,7 @@ export default function PortfolioSummary({ portfolio }: PortfolioSummaryProps) {
   return (
     <div className="bg-card-bg rounded-2xl md:rounded-xl md:border border-card-border overflow-hidden shadow-sm md:shadow-none">
       <div className="px-5 py-3 sm:py-4 border-b border-card-border">
-        <h2 className="text-sm font-bold text-primary">포트폴리오 요약</h2>
+        <h2 className="text-base font-bold text-primary">포트폴리오 요약</h2>
       </div>
 
       {/* Desktop layout */}
@@ -131,34 +131,34 @@ export default function PortfolioSummary({ portfolio }: PortfolioSummaryProps) {
       </div>
 
       {/* Mobile — Toss style */}
-      <div className="md:hidden px-5 py-6 space-y-5">
+      <div className="md:hidden px-5 py-6 space-y-6">
         {/* Pie chart section */}
         {stocks.length > 0 && (
-          <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col items-center gap-5">
             <PieChart
               data={chartData}
-              size={180}
+              size={200}
               centerLabel="총 투자금"
               centerValue={formatAmountShort(investmentAmount)}
             />
             {/* Legend */}
-            <div className="w-full space-y-2">
+            <div className="w-full space-y-3">
               {chartData.map((item) => {
                 const pos = categoryPositions.find((p) => p.category === item.label);
                 return (
-                  <div key={item.label} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div key={item.label} className="flex items-center justify-between py-0.5">
+                    <div className="flex items-center gap-2.5">
                       <span
-                        className="w-2.5 h-2.5 rounded-full shrink-0"
+                        className="w-3 h-3 rounded-full shrink-0"
                         style={{ backgroundColor: item.color }}
                       />
-                      <span className="text-sm text-foreground">{item.label}</span>
+                      <span className="text-[15px] text-foreground">{item.label}</span>
                     </div>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-sm font-bold text-foreground">
+                      <span className="text-[15px] font-bold text-foreground">
                         {pos ? (pos.weight * 100).toFixed(1) + "%" : ""}
                       </span>
-                      <span className="text-xs text-muted">
+                      <span className="text-[13px] text-muted">
                         {pos ? formatNumber(pos.amount) + "원" : ""}
                       </span>
                     </div>
@@ -171,31 +171,31 @@ export default function PortfolioSummary({ portfolio }: PortfolioSummaryProps) {
         {/* Key metrics — Toss-style large cards */}
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-accent-green-bg rounded-2xl p-5 text-center">
-            <div className="text-[11px] text-muted mb-2">예상 월배당</div>
-            <div className="text-2xl font-bold text-accent-green">{formatNumber(estMonthlyDividend)}원</div>
+            <div className="text-xs text-muted mb-2">예상 월배당</div>
+            <div className="text-[26px] font-bold text-accent-green">{formatNumber(estMonthlyDividend)}원</div>
           </div>
           <div className="bg-accent-green-bg rounded-2xl p-5 text-center">
-            <div className="text-[11px] text-muted mb-2">예상 연배당</div>
-            <div className="text-2xl font-bold text-accent-green">{formatNumber(estAnnualDividend)}원</div>
+            <div className="text-xs text-muted mb-2">예상 연배당</div>
+            <div className="text-[26px] font-bold text-accent-green">{formatNumber(estAnnualDividend)}원</div>
           </div>
         </div>
         {/* Secondary metrics — Toss ListRow style */}
         <div className="bg-table-hover rounded-2xl px-5 py-4">
-          <div className="flex items-center justify-between py-2.5">
-            <span className="text-sm text-muted-foreground">종목 수</span>
-            <span className="text-sm font-bold text-foreground">{stocks.length}개</span>
+          <div className="flex items-center justify-between py-3.5">
+            <span className="text-[15px] text-muted-foreground">종목 수</span>
+            <span className="text-[15px] font-bold text-foreground">{stocks.length}개</span>
           </div>
           <div className="border-t border-card-border" />
-          <div className="flex items-center justify-between py-2.5">
-            <span className="text-sm text-muted-foreground">총 비중</span>
-            <span className={`text-sm font-bold ${totalWeight > 1.001 ? "text-accent-red" : "text-foreground"}`}>
+          <div className="flex items-center justify-between py-3.5">
+            <span className="text-[15px] text-muted-foreground">총 비중</span>
+            <span className={`text-[15px] font-bold ${totalWeight > 1.001 ? "text-accent-red" : "text-foreground"}`}>
               {formatPercent(totalWeight)}
             </span>
           </div>
           <div className="border-t border-card-border" />
-          <div className="flex items-center justify-between py-2.5">
-            <span className="text-sm text-muted-foreground">가중평균 배당률</span>
-            <span className="text-sm font-bold text-foreground">{formatPercent(weightedDividendRate)}</span>
+          <div className="flex items-center justify-between py-3.5">
+            <span className="text-[15px] text-muted-foreground">가중평균 배당률</span>
+            <span className="text-[15px] font-bold text-foreground">{formatPercent(weightedDividendRate)}</span>
           </div>
         </div>
       </div>

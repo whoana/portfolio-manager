@@ -37,13 +37,13 @@ export default function GrowthReport({ portfolio }: GrowthReportProps) {
     <div className="bg-card-bg rounded-2xl md:rounded-xl md:border border-card-border overflow-hidden shadow-sm md:shadow-none">
       {/* Card Header */}
       <div className="px-5 py-4 border-b border-card-border">
-        <h2 className="text-sm font-bold text-primary mb-3 md:mb-0">
+        <h2 className="text-base font-bold text-primary mb-3 md:mb-0">
           자산성장 전망 (1~10년)
         </h2>
         {/* Parameter Inputs — Toss-style cards on mobile */}
         <div className="grid grid-cols-3 md:flex md:flex-wrap md:items-center gap-2 md:gap-x-4 md:gap-y-2 md:justify-end md:mt-0 mt-3">
           <div className="md:flex md:items-center md:gap-1.5 bg-table-hover md:bg-transparent rounded-xl md:rounded-none px-3 md:px-0 py-2.5 md:py-0 text-center md:text-left">
-            <label className="text-[10px] md:text-xs text-muted-foreground block md:inline md:whitespace-nowrap mb-1 md:mb-0">배당성장</label>
+            <label className="text-xs md:text-xs text-muted-foreground block md:inline md:whitespace-nowrap mb-1 md:mb-0">배당성장</label>
             <div className="flex items-center justify-center md:justify-start gap-0.5">
               <input
                 type="number"
@@ -64,7 +64,7 @@ export default function GrowthReport({ portfolio }: GrowthReportProps) {
           </div>
 
           <div className="md:flex md:items-center md:gap-1.5 bg-table-hover md:bg-transparent rounded-xl md:rounded-none px-3 md:px-0 py-2.5 md:py-0 text-center md:text-left">
-            <label className="text-[10px] md:text-xs text-muted-foreground block md:inline md:whitespace-nowrap mb-1 md:mb-0">추가투자</label>
+            <label className="text-xs md:text-xs text-muted-foreground block md:inline md:whitespace-nowrap mb-1 md:mb-0">추가투자</label>
             <div className="flex items-center justify-center md:justify-start gap-0.5">
               <input
                 type="number"
@@ -84,7 +84,7 @@ export default function GrowthReport({ portfolio }: GrowthReportProps) {
           </div>
 
           <div className="md:flex md:items-center md:gap-1.5 bg-table-hover md:bg-transparent rounded-xl md:rounded-none px-3 md:px-0 py-2.5 md:py-0 text-center md:text-left">
-            <label className="text-[10px] md:text-xs text-muted-foreground block md:inline md:whitespace-nowrap mb-1 md:mb-0">자산상승</label>
+            <label className="text-xs md:text-xs text-muted-foreground block md:inline md:whitespace-nowrap mb-1 md:mb-0">자산상승</label>
             <div className="flex items-center justify-center md:justify-start gap-0.5">
               <input
                 type="number"
@@ -153,23 +153,23 @@ export default function GrowthReport({ portfolio }: GrowthReportProps) {
           const barWidth = Math.max(8, (row.assetValue / maxAsset) * 100);
           const isLast = row.year === rows.length;
           return (
-            <div key={row.year} className={`px-5 py-5 ${isLast ? "bg-primary/5" : ""}`}>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-3">
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${isLast ? "bg-primary" : "bg-primary/10"}`}>
-                    <span className={`text-xs font-bold ${isLast ? "text-primary-fg" : "text-primary"}`}>{row.year}</span>
+            <div key={row.year} className={`px-5 py-[18px] ${isLast ? "bg-primary/5" : ""}`}>
+              <div className="flex items-center justify-between mb-2.5">
+                <div className="flex items-center gap-3.5">
+                  <div className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 ${isLast ? "bg-primary" : "bg-primary/10"}`}>
+                    <span className={`text-sm font-bold ${isLast ? "text-primary-fg" : "text-primary"}`}>{row.year}</span>
                   </div>
-                  <span className={`text-[15px] font-medium text-foreground ${isLast ? "font-bold" : ""}`}>{row.year}년차</span>
+                  <span className={`text-[17px] font-medium text-foreground ${isLast ? "font-bold" : ""}`}>{row.year}년차</span>
                 </div>
-                <span className={`text-[15px] font-bold ${isLast ? "text-primary" : ""}`}>{formatNumber(row.assetValue)}원</span>
+                <span className={`text-[17px] font-bold ${isLast ? "text-primary" : ""}`}>{formatNumber(row.assetValue)}원</span>
               </div>
               {/* Progress bar */}
-              <div className="ml-12 mb-2">
-                <div className="h-1.5 bg-card-border rounded-full overflow-hidden">
+              <div className="ml-[58px] mb-2.5">
+                <div className="h-2 bg-card-border rounded-full overflow-hidden">
                   <div className={`h-full rounded-full transition-all ${isLast ? "bg-primary" : "bg-primary/40"}`} style={{ width: `${barWidth}%` }} />
                 </div>
               </div>
-              <div className="flex items-center gap-3 text-xs ml-12">
+              <div className="flex items-center gap-3 text-[13px] ml-[58px]">
                 <span className="text-muted-foreground">누적 {formatNumber(row.totalInvested)}원</span>
                 <span className="text-accent-green font-medium">월 {formatNumber(row.monthlyDividend)}원</span>
                 <span className="text-muted-foreground">{formatPercent(row.dividendRate)}</span>

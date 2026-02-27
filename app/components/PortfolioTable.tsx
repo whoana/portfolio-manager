@@ -85,7 +85,7 @@ export default function PortfolioTable({
     <div className="bg-card-bg rounded-xl md:rounded-xl rounded-2xl md:border border-card-border overflow-hidden md:shadow-none shadow-sm">
       <div className="flex items-center justify-between px-5 py-4 border-b border-card-border">
         <div className="flex items-center gap-3">
-          <h2 className="text-sm font-bold text-primary">자산배분 전략</h2>
+          <h2 className="text-base font-bold text-primary">자산배분 전략</h2>
           {weightOver && (
             <span className="text-xs font-medium text-accent-red bg-accent-red-bg px-2 py-0.5 rounded-full">
               비중 합계 {formatPercent(totalWeight)} 초과
@@ -232,16 +232,16 @@ export default function PortfolioTable({
                 <div
                   key={stock.id}
                   onClick={() => onEditClick(stock)}
-                  className="flex items-center gap-3.5 px-5 py-5 active:bg-table-hover/50 cursor-pointer transition-colors"
+                  className="flex items-center gap-4 px-5 py-[18px] active:bg-table-hover/50 cursor-pointer transition-colors"
                 >
                   {/* Left: colored category circle */}
-                  <div className={`w-11 h-11 rounded-full ${dotColor} flex items-center justify-center flex-shrink-0`}>
-                    <span className="text-[10px] font-bold text-white leading-none">{stock.category}</span>
+                  <div className={`w-12 h-12 rounded-full ${dotColor} flex items-center justify-center flex-shrink-0`}>
+                    <span className="text-[11px] font-bold text-white leading-none">{stock.category}</span>
                   </div>
                   {/* Center: name + meta */}
                   <div className="flex-1 min-w-0">
-                    <div className="text-[15px] font-semibold text-foreground truncate">{stock.name}</div>
-                    <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                    <div className="text-[17px] font-semibold text-foreground truncate">{stock.name}</div>
+                    <div className="flex items-center gap-2 mt-1.5 text-[13px] text-muted-foreground">
                       <span className="font-mono">{stock.code}</span>
                       <span>·</span>
                       <span className={weightOver ? "text-accent-red font-medium" : ""}>{formatPercent(stock.targetWeight)}</span>
@@ -250,19 +250,19 @@ export default function PortfolioTable({
                     </div>
                   </div>
                   {/* Right: price + chevron */}
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     <div className="text-right">
-                      <div className="text-[15px] font-bold">
+                      <div className="text-[17px] font-bold">
                         {isLoading ? (
                           <span className="inline-block w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                         ) : stock.currentPrice ? (
                           formatNumber(stock.currentPrice) + "원"
                         ) : (
-                          <span className="text-muted text-xs">-</span>
+                          <span className="text-muted text-sm">-</span>
                         )}
                       </div>
                     </div>
-                    <svg className="w-4 h-4 text-muted/50 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="w-5 h-5 text-muted/40 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                     </svg>
                   </div>

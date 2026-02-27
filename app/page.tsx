@@ -357,7 +357,7 @@ export default function HomePage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
                   </svg>
                 </button>
-                <h1 className="text-base font-bold text-foreground">내 투자</h1>
+                <h1 className="text-lg font-bold text-foreground">내 투자</h1>
               </div>
               {activePortfolio && (
                 <div className="flex items-center gap-1">
@@ -566,23 +566,23 @@ export default function HomePage() {
                   const annDiv = Math.round(activePortfolio.investmentAmount * wdr);
                   const monDiv = Math.round(annDiv / 12);
                   return (
-                    <div className="bg-card-bg rounded-2xl shadow-sm p-5">
-                      <div className="text-xs text-muted-foreground mb-1">{activePortfolio.name}</div>
-                      <div className="text-2xl font-bold text-foreground mb-4">
+                    <div className="bg-card-bg rounded-2xl shadow-sm p-6">
+                      <div className="text-sm text-muted-foreground mb-1">{activePortfolio.name}</div>
+                      <div className="text-[28px] font-bold text-foreground mb-5">
                         {formatNumber(activePortfolio.investmentAmount)}원
                       </div>
-                      <div className="grid grid-cols-3 gap-2">
-                        <div className="bg-accent-green-bg rounded-xl px-3 py-2.5 text-center">
-                          <div className="text-[10px] text-muted mb-0.5">월배당</div>
-                          <div className="text-sm font-bold text-accent-green">{formatNumber(monDiv)}원</div>
+                      <div className="grid grid-cols-3 gap-2.5">
+                        <div className="bg-accent-green-bg rounded-xl px-3 py-3 text-center">
+                          <div className="text-xs text-muted mb-1">월배당</div>
+                          <div className="text-base font-bold text-accent-green">{formatNumber(monDiv)}원</div>
                         </div>
-                        <div className="bg-accent-green-bg rounded-xl px-3 py-2.5 text-center">
-                          <div className="text-[10px] text-muted mb-0.5">연배당</div>
-                          <div className="text-sm font-bold text-accent-green">{formatNumber(annDiv)}원</div>
+                        <div className="bg-accent-green-bg rounded-xl px-3 py-3 text-center">
+                          <div className="text-xs text-muted mb-1">연배당</div>
+                          <div className="text-base font-bold text-accent-green">{formatNumber(annDiv)}원</div>
                         </div>
-                        <div className="bg-primary/5 rounded-xl px-3 py-2.5 text-center">
-                          <div className="text-[10px] text-muted mb-0.5">종목</div>
-                          <div className="text-sm font-bold text-primary">{stks.length}개</div>
+                        <div className="bg-primary/5 rounded-xl px-3 py-3 text-center">
+                          <div className="text-xs text-muted mb-1">종목</div>
+                          <div className="text-base font-bold text-primary">{stks.length}개</div>
                         </div>
                       </div>
                     </div>
@@ -650,21 +650,21 @@ export default function HomePage() {
         {/* Mobile bottom navigation bar — Toss style */}
         {activePortfolio && (
           <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-card-bg/95 backdrop-blur-md border-t border-card-border safe-area-bottom">
-            <div className="flex items-stretch h-16">
+            <div className="flex items-stretch h-[68px]">
               {MOBILE_TABS.map((tab) => (
                 <button
                   key={tab.key}
                   onClick={() => setMobileTab(tab.key)}
-                  className={`flex-1 flex flex-col items-center justify-center gap-1 transition-colors ${
+                  className={`flex-1 flex flex-col items-center justify-center gap-1.5 transition-colors ${
                     mobileTab === tab.key
                       ? "text-primary"
                       : "text-muted"
                   }`}
                 >
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={mobileTab === tab.key ? 2.5 : 1.5}>
+                  <svg className="w-[26px] h-[26px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={mobileTab === tab.key ? 2.5 : 1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d={tab.icon} />
                   </svg>
-                  <span className={`text-[11px] ${mobileTab === tab.key ? "font-bold" : "font-medium"}`}>
+                  <span className={`text-xs ${mobileTab === tab.key ? "font-bold" : "font-medium"}`}>
                     {tab.label}
                   </span>
                 </button>

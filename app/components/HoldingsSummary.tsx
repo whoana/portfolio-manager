@@ -48,7 +48,7 @@ export default function HoldingsSummary({ items }: HoldingsSummaryProps) {
   return (
     <div className="bg-card-bg rounded-2xl md:rounded-xl md:border border-card-border overflow-hidden shadow-sm md:shadow-none">
       <div className="px-5 py-3 sm:py-4 border-b border-card-border">
-        <h2 className="text-sm font-bold text-primary">보유 현황 요약</h2>
+        <h2 className="text-base font-bold text-primary">보유 현황 요약</h2>
       </div>
 
       {/* Desktop layout */}
@@ -111,33 +111,33 @@ export default function HoldingsSummary({ items }: HoldingsSummaryProps) {
       </div>
 
       {/* Mobile — Toss style */}
-      <div className="md:hidden px-5 py-6 space-y-5">
+      <div className="md:hidden px-5 py-6 space-y-6">
         {/* Pie chart */}
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-5">
           <PieChart
             data={chartData}
-            size={180}
+            size={200}
             centerLabel="총 평가액"
             centerValue={formatAmountShort(totalEval)}
           />
           {/* Legend */}
-          <div className="w-full space-y-2">
+          <div className="w-full space-y-3">
             {chartData.map((item) => {
               const ce = categoryEvals.find((c) => c.category === item.label);
               return (
-                <div key={item.label} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                <div key={item.label} className="flex items-center justify-between py-0.5">
+                  <div className="flex items-center gap-2.5">
                     <span
-                      className="w-2.5 h-2.5 rounded-full shrink-0"
+                      className="w-3 h-3 rounded-full shrink-0"
                       style={{ backgroundColor: item.color }}
                     />
-                    <span className="text-sm text-foreground">{item.label}</span>
+                    <span className="text-[15px] text-foreground">{item.label}</span>
                   </div>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-sm font-bold text-foreground">
+                    <span className="text-[15px] font-bold text-foreground">
                       {ce && totalEval > 0 ? ((ce.evalAmount / totalEval) * 100).toFixed(1) + "%" : ""}
                     </span>
-                    <span className="text-xs text-muted">
+                    <span className="text-[13px] text-muted">
                       {ce ? formatNumber(ce.evalAmount) + "원" : ""}
                     </span>
                   </div>
@@ -149,26 +149,26 @@ export default function HoldingsSummary({ items }: HoldingsSummaryProps) {
         {/* Cards */}
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-primary/5 rounded-2xl p-5 text-center">
-            <div className="text-[11px] text-muted mb-2">투자원금</div>
-            <div className="text-xl font-bold text-primary">{formatAmountShort(totalInvest)}</div>
+            <div className="text-xs text-muted mb-2">투자원금</div>
+            <div className="text-2xl font-bold text-primary">{formatAmountShort(totalInvest)}</div>
           </div>
           <div className="bg-primary/5 rounded-2xl p-5 text-center">
-            <div className="text-[11px] text-muted mb-2">평가액</div>
-            <div className="text-xl font-bold text-primary">{formatAmountShort(totalEval)}</div>
+            <div className="text-xs text-muted mb-2">평가액</div>
+            <div className="text-2xl font-bold text-primary">{formatAmountShort(totalEval)}</div>
           </div>
         </div>
         {/* P&L row */}
         <div className="bg-table-hover rounded-2xl px-5 py-4">
-          <div className="flex items-center justify-between py-2.5">
-            <span className="text-sm text-muted-foreground">총 손익</span>
-            <span className={`text-sm font-bold ${profitColor(totalProfitLoss)}`}>
+          <div className="flex items-center justify-between py-3.5">
+            <span className="text-[15px] text-muted-foreground">총 손익</span>
+            <span className={`text-[15px] font-bold ${profitColor(totalProfitLoss)}`}>
               {formatPL(totalProfitLoss)}원
             </span>
           </div>
           <div className="border-t border-card-border" />
-          <div className="flex items-center justify-between py-2.5">
-            <span className="text-sm text-muted-foreground">총 수익률</span>
-            <span className={`text-sm font-bold ${profitColor(totalReturnRate)}`}>
+          <div className="flex items-center justify-between py-3.5">
+            <span className="text-[15px] text-muted-foreground">총 수익률</span>
+            <span className={`text-[15px] font-bold ${profitColor(totalReturnRate)}`}>
               {formatRate(totalReturnRate)}
             </span>
           </div>

@@ -110,7 +110,7 @@ export default function HoldingsTable({
   return (
     <div className="bg-card-bg rounded-xl md:rounded-xl rounded-2xl md:border border-card-border overflow-hidden md:shadow-none shadow-sm">
       <div className="flex items-center justify-between px-5 py-4 border-b border-card-border">
-        <h2 className="text-sm font-bold text-primary">보유 내역</h2>
+        <h2 className="text-base font-bold text-primary">보유 내역</h2>
         <div className="flex items-center gap-2">
           {items.length > 0 && (
             <button
@@ -336,33 +336,33 @@ export default function HoldingsTable({
                 <div
                   key={item.id}
                   onClick={() => onEditClick(item)}
-                  className="flex items-center gap-3.5 px-5 py-5 active:bg-table-hover/50 cursor-pointer transition-colors"
+                  className="flex items-center gap-4 px-5 py-[18px] active:bg-table-hover/50 cursor-pointer transition-colors"
                 >
-                  <div className={`w-11 h-11 rounded-full ${dotColor} flex items-center justify-center flex-shrink-0`}>
-                    <span className="text-[10px] font-bold text-white leading-none">{item.category}</span>
+                  <div className={`w-12 h-12 rounded-full ${dotColor} flex items-center justify-center flex-shrink-0`}>
+                    <span className="text-[11px] font-bold text-white leading-none">{item.category}</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-[15px] font-semibold text-foreground truncate">{item.name}</div>
-                    <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                    <div className="text-[17px] font-semibold text-foreground truncate">{item.name}</div>
+                    <div className="flex items-center gap-2 mt-1.5 text-[13px] text-muted-foreground">
                       <span className="font-mono">{item.code}</span>
                       <span>·</span>
                       <span>{formatNumber(item.quantity)}주</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     <div className="text-right">
-                      <div className="text-[15px] font-bold">
+                      <div className="text-[17px] font-bold">
                         {isLoading ? (
                           <span className="inline-block w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                         ) : (
                           formatNumber(ev.evalAmount) + "원"
                         )}
                       </div>
-                      <div className={`text-xs font-medium ${profitColor(ev.profitLoss)}`}>
+                      <div className={`text-[13px] font-medium ${profitColor(ev.profitLoss)}`}>
                         {formatProfitLoss(ev.profitLoss)}원 {formatReturnRate(ev.returnRate)}
                       </div>
                     </div>
-                    <svg className="w-4 h-4 text-muted/50 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg className="w-5 h-5 text-muted/40 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                     </svg>
                   </div>
@@ -370,18 +370,18 @@ export default function HoldingsTable({
               );
             })}
             {/* Mobile total */}
-            <div className="px-5 py-4 bg-table-hover/50">
+            <div className="px-5 py-5 bg-table-hover/50">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">투자원금</span>
-                <span className="text-sm font-bold">{formatNumber(totalInvest)}원</span>
+                <span className="text-[15px] text-muted-foreground">투자원금</span>
+                <span className="text-[15px] font-bold">{formatNumber(totalInvest)}원</span>
               </div>
-              <div className="flex items-center justify-between mt-1">
-                <span className="text-sm text-muted-foreground">평가액</span>
-                <span className="text-sm font-bold">{formatNumber(totalEval)}원</span>
+              <div className="flex items-center justify-between mt-2">
+                <span className="text-[15px] text-muted-foreground">평가액</span>
+                <span className="text-[15px] font-bold">{formatNumber(totalEval)}원</span>
               </div>
-              <div className="flex items-center justify-between mt-1">
-                <span className="text-sm text-muted-foreground">총 손익</span>
-                <span className={`text-sm font-bold ${profitColor(totalProfitLoss)}`}>
+              <div className="flex items-center justify-between mt-2">
+                <span className="text-[15px] text-muted-foreground">총 손익</span>
+                <span className={`text-[15px] font-bold ${profitColor(totalProfitLoss)}`}>
                   {formatProfitLoss(totalProfitLoss)}원 ({formatReturnRate(totalReturnRate)})
                 </span>
               </div>
