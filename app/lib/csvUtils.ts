@@ -128,7 +128,7 @@ function escapeCsvField(value: string): string {
 }
 
 export function exportHoldingsTemplate(stocks?: PortfolioStock[]): string {
-  const header = "구분,종목,종목코드,수량,평단가,해외코드";
+  const header = "구분,종목,종목코드,수량,평단가";
   if (!stocks || stocks.length === 0) {
     return "\uFEFF" + header + "\n";
   }
@@ -139,7 +139,6 @@ export function exportHoldingsTemplate(stocks?: PortfolioStock[]): string {
       escapeCsvField(s.code),
       "0",
       "0",
-      s.reutersCode ? escapeCsvField(s.reutersCode) : "",
     ].join(",")
   );
   return "\uFEFF" + [header, ...rows].join("\n") + "\n";

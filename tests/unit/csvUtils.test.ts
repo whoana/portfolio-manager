@@ -99,12 +99,13 @@ describe("exportHoldingsTemplate", () => {
   it("포트폴리오 종목 전달 시 수량 0, 평단가 0으로 포함", () => {
     const stocks = [
       { id: "s1", category: "배당성장", name: "TIGER 미국배당", code: "458730", targetWeight: 0.3, dividendRate: 0.035, strategy: "", analysis: "", rationale: "" },
-      { id: "s2", category: "성장동력", name: "KODEX S&P500", code: "379800", reutersCode: "SPY.K", targetWeight: 0.2, dividendRate: 0.01, strategy: "", analysis: "", rationale: "" },
+      { id: "s2", category: "성장동력", name: "KODEX S&P500", code: "379800", targetWeight: 0.2, dividendRate: 0.01, strategy: "", analysis: "", rationale: "" },
     ];
     const template = exportHoldingsTemplate(stocks);
-    expect(template).toContain("구분,종목,종목코드,수량,평단가,해외코드");
-    expect(template).toContain("배당성장,TIGER 미국배당,458730,0,0,");
-    expect(template).toContain("성장동력,KODEX S&P500,379800,0,0,SPY.K");
+    expect(template).toContain("구분,종목,종목코드,수량,평단가");
+    expect(template).toContain("배당성장,TIGER 미국배당,458730,0,0");
+    expect(template).toContain("성장동력,KODEX S&P500,379800,0,0");
+    expect(template).not.toContain("해외코드");
   });
 });
 
