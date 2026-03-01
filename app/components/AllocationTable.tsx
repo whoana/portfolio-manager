@@ -9,6 +9,21 @@ interface AllocationTableProps {
   onInvestmentAmountChange: (amount: number) => void;
 }
 
+type SortKey = "category" | "name" | "currentPrice" | "targetWeight" | "investAmount" | "quantity" | "monthlyDividend" | "annualDividend" | "dividendRate";
+type SortDir = "asc" | "desc";
+
+const SORT_LABELS: Record<SortKey, string> = {
+  category: "구분",
+  name: "종목명",
+  currentPrice: "현재가",
+  targetWeight: "비중",
+  investAmount: "투자금액",
+  quantity: "수량",
+  monthlyDividend: "월배당",
+  annualDividend: "연배당",
+  dividendRate: "배당률",
+};
+
 export default function AllocationTable({
   portfolio,
   onInvestmentAmountChange,
@@ -16,6 +31,20 @@ export default function AllocationTable({
   const [inputValue, setInputValue] = useState(
     portfolio.investmentAmount.toLocaleString("ko-KR")
   );
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  };
+
+  const sortIndicator = (key: SortKey) =>
+    sortKey === key ? (sortDir === "asc" ? " ▲" : " ▼") : "";
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/,/g, "");
@@ -38,12 +67,27 @@ export default function AllocationTable({
     );
   }
 
-  const calcResults = stocks.map((stock) => ({
+  const calcResultsRaw = stocks.map((stock) => ({
     stock,
     calc: calcStockAllocation(stock, investmentAmount),
   }));
 
-  const totals = calcResults.reduce(
+  const calcResults = (() => {
+    if (!sortKey) return calcResultsRaw;
+    return [...calcResultsRaw].sort((a, b) => {
+      let cmp = 0;
+      if (sortKey === "category" || sortKey === "name") {
+        cmp = a.stock[sortKey].localeCompare(b.stock[sortKey]);
+      } else if (sortKey === "currentPrice" || sortKey === "targetWeight" || sortKey === "dividendRate") {
+        cmp = (a.stock[sortKey] || 0) - (b.stock[sortKey] || 0);
+      } else {
+        cmp = (a.calc[sortKey] || 0) - (b.calc[sortKey] || 0);
+      }
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+  })();
+
+  const totals = calcResultsRaw.reduce(
     (acc, { calc }) => ({
       investAmount: acc.investAmount + calc.investAmount,
       quantity: acc.quantity + calc.quantity,
@@ -87,16 +131,16 @@ export default function AllocationTable({
         <table className="w-full text-xs">
           <thead>
             <tr className="bg-primary text-primary-fg">
-              <th className="px-3 py-3 text-left font-semibold">구분</th>
-              <th className="px-3 py-3 text-left font-semibold">ETF 종목명</th>
-              <th className="px-3 py-3 text-right font-semibold">현재가</th>
-              <th className="px-3 py-3 text-center font-semibold">비중</th>
-              <th className="px-3 py-3 text-right font-semibold">투자금액</th>
-              <th className="px-3 py-3 text-right font-semibold">매수수량</th>
+              <th className="px-3 py-3 text-left font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("category")}>구분{sortIndicator("category")}</th>
+              <th className="px-3 py-3 text-left font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("name")}>ETF 종목명{sortIndicator("name")}</th>
+              <th className="px-3 py-3 text-right font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("currentPrice")}>현재가{sortIndicator("currentPrice")}</th>
+              <th className="px-3 py-3 text-center font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("targetWeight")}>비중{sortIndicator("targetWeight")}</th>
+              <th className="px-3 py-3 text-right font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("investAmount")}>투자금액{sortIndicator("investAmount")}</th>
+              <th className="px-3 py-3 text-right font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("quantity")}>매수수량{sortIndicator("quantity")}</th>
               <th className="px-3 py-3 text-right font-semibold">실투자금액</th>
-              <th className="px-3 py-3 text-right font-semibold bg-thead-accent">월배당</th>
-              <th className="px-3 py-3 text-right font-semibold bg-thead-accent">연배당</th>
-              <th className="px-3 py-3 text-center font-semibold">배당률</th>
+              <th className="px-3 py-3 text-right font-semibold bg-thead-accent cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("monthlyDividend")}>월배당{sortIndicator("monthlyDividend")}</th>
+              <th className="px-3 py-3 text-right font-semibold bg-thead-accent cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("annualDividend")}>연배당{sortIndicator("annualDividend")}</th>
+              <th className="px-3 py-3 text-center font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("dividendRate")}>배당률{sortIndicator("dividendRate")}</th>
             </tr>
           </thead>
           <tbody>
@@ -161,6 +205,23 @@ export default function AllocationTable({
             </tr>
           </tfoot>
         </table>
+      </div>
+
+      {/* Mobile sort chips */}
+      <div className="md:hidden flex items-center gap-2 px-5 py-2.5 overflow-x-auto border-b border-card-border bg-table-hover/30">
+        {(["category", "name", "targetWeight", "investAmount", "annualDividend", "dividendRate"] as SortKey[]).map((key) => (
+          <button
+            key={key}
+            onClick={() => toggleSort(key)}
+            className={`flex-shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${
+              sortKey === key
+                ? "bg-primary text-primary-fg border-primary font-bold"
+                : "bg-card-bg text-muted-foreground border-card-border"
+            }`}
+          >
+            {SORT_LABELS[key]}{sortKey === key ? (sortDir === "asc" ? " ▲" : " ▼") : ""}
+          </button>
+        ))}
       </div>
 
       {/* Mobile card list — 3-line layout */}

@@ -13,8 +13,34 @@ interface GrowthReportProps {
   portfolio: Portfolio;
 }
 
+type SortKey = "year" | "assetValue" | "totalInvested" | "annualDividend" | "monthlyDividend" | "dividendRate";
+type SortDir = "asc" | "desc";
+
+const SORT_LABELS: Record<SortKey, string> = {
+  year: "연차",
+  assetValue: "평가금",
+  totalInvested: "누적투자금",
+  annualDividend: "연배당금",
+  monthlyDividend: "월배당금",
+  dividendRate: "배당률",
+};
+
 export default function GrowthReport({ portfolio }: GrowthReportProps) {
   const [params, setParams] = useState<GrowthParams>(DEFAULT_GROWTH_PARAMS);
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  };
+
+  const sortIndicator = (key: SortKey) =>
+    sortKey === key ? (sortDir === "asc" ? " ▲" : " ▼") : "";
 
   const { stocks } = portfolio;
 
@@ -32,6 +58,14 @@ export default function GrowthReport({ portfolio }: GrowthReportProps) {
     weightedDividendRate,
     params
   );
+
+  const sortedRows = (() => {
+    if (!sortKey) return rows;
+    return [...rows].sort((a, b) => {
+      const cmp = a[sortKey] - b[sortKey];
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+  })();
 
   return (
     <div className="bg-card-bg rounded-2xl md:rounded-xl md:border border-card-border overflow-hidden shadow-sm md:shadow-none">
@@ -111,16 +145,16 @@ export default function GrowthReport({ portfolio }: GrowthReportProps) {
         <table className="w-full text-xs">
           <thead>
             <tr className="bg-primary text-primary-fg">
-              <th className="px-3 py-3 text-center font-semibold">연차</th>
-              <th className="px-3 py-3 text-right font-semibold">평가금</th>
-              <th className="px-3 py-3 text-right font-semibold">누적투자금</th>
-              <th className="px-3 py-3 text-right font-semibold bg-thead-accent">연배당금</th>
-              <th className="px-3 py-3 text-right font-semibold bg-thead-accent">월배당금</th>
-              <th className="px-3 py-3 text-center font-semibold">배당률</th>
+              <th className="px-3 py-3 text-center font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("year")}>연차{sortIndicator("year")}</th>
+              <th className="px-3 py-3 text-right font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("assetValue")}>평가금{sortIndicator("assetValue")}</th>
+              <th className="px-3 py-3 text-right font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("totalInvested")}>누적투자금{sortIndicator("totalInvested")}</th>
+              <th className="px-3 py-3 text-right font-semibold bg-thead-accent cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("annualDividend")}>연배당금{sortIndicator("annualDividend")}</th>
+              <th className="px-3 py-3 text-right font-semibold bg-thead-accent cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("monthlyDividend")}>월배당금{sortIndicator("monthlyDividend")}</th>
+              <th className="px-3 py-3 text-center font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("dividendRate")}>배당률{sortIndicator("dividendRate")}</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
+            {sortedRows.map((row) => (
               <tr key={row.year} className="border-t border-card-border hover:bg-table-hover/50">
                 <td className="px-3 py-3 text-xs text-center font-medium text-muted-foreground">
                   {row.year}년차
@@ -146,12 +180,29 @@ export default function GrowthReport({ portfolio }: GrowthReportProps) {
         </table>
       </div>
 
+      {/* Mobile sort chips */}
+      <div className="md:hidden flex items-center gap-2 px-5 py-2.5 overflow-x-auto border-b border-card-border bg-table-hover/30">
+        {(["year", "assetValue", "annualDividend", "monthlyDividend", "dividendRate"] as SortKey[]).map((key) => (
+          <button
+            key={key}
+            onClick={() => toggleSort(key)}
+            className={`flex-shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${
+              sortKey === key
+                ? "bg-primary text-primary-fg border-primary font-bold"
+                : "bg-card-bg text-muted-foreground border-card-border"
+            }`}
+          >
+            {SORT_LABELS[key]}{sortKey === key ? (sortDir === "asc" ? " ▲" : " ▼") : ""}
+          </button>
+        ))}
+      </div>
+
       {/* Mobile card list — Toss style with progress */}
       <div className="md:hidden divide-y divide-card-border">
-        {rows.map((row) => {
+        {sortedRows.map((row) => {
           const maxAsset = rows[rows.length - 1]?.assetValue || 1;
           const barWidth = Math.max(8, (row.assetValue / maxAsset) * 100);
-          const isLast = row.year === rows.length;
+          const isLast = row.year === rows[rows.length - 1]?.year;
           return (
             <div key={row.year} className={`px-5 py-[18px] ${isLast ? "bg-primary/5" : ""}`}>
               <div className="flex items-center justify-between mb-2.5">
