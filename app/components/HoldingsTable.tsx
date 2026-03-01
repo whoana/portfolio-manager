@@ -17,6 +17,20 @@ interface HoldingsTableProps {
   onExportData: () => void;
 }
 
+type SortKey = "category" | "name" | "quantity" | "avgPrice" | "currentPrice" | "evalAmount" | "profitLoss" | "returnRate";
+type SortDir = "asc" | "desc";
+
+const SORT_LABELS: Record<SortKey, string> = {
+  category: "구분",
+  name: "종목명",
+  quantity: "수량",
+  avgPrice: "평단가",
+  currentPrice: "현재가",
+  evalAmount: "평가액",
+  profitLoss: "손익",
+  returnRate: "수익률",
+};
+
 export default function HoldingsTable({
   items,
   onUpdate,
@@ -31,6 +45,20 @@ export default function HoldingsTable({
   const [showExportMenu, setShowExportMenu] = useState(false);
   const autoRefreshDone = useRef(false);
   const exportMenuRef = useRef<HTMLDivElement>(null);
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  };
+
+  const sortIndicator = (key: SortKey) =>
+    sortKey === key ? (sortDir === "asc" ? " ▲" : " ▼") : "";
 
   useEffect(() => {
     if (items.length > 0 && !autoRefreshDone.current) {
@@ -88,8 +116,31 @@ export default function HoldingsTable({
 
   const { totalInvest, totalEval, totalProfitLoss, totalReturnRate } = evaluateAllHoldings(items);
 
-  // Group items by category for subtotals
-  const sortedItems = [...items].sort((a, b) => a.category.localeCompare(b.category));
+  // Sort items: user sort or default by category
+  const sortedItems = (() => {
+    if (!sortKey) return [...items].sort((a, b) => a.category.localeCompare(b.category));
+    return [...items].sort((a, b) => {
+      let cmp = 0;
+      if (sortKey === "category" || sortKey === "name") {
+        cmp = a[sortKey].localeCompare(b[sortKey]);
+      } else if (sortKey === "evalAmount") {
+        cmp = (a.quantity * (a.currentPrice || 0)) - (b.quantity * (b.currentPrice || 0));
+      } else if (sortKey === "profitLoss") {
+        const plA = a.quantity * ((a.currentPrice || 0) - a.avgPrice);
+        const plB = b.quantity * ((b.currentPrice || 0) - b.avgPrice);
+        cmp = plA - plB;
+      } else if (sortKey === "returnRate") {
+        const invA = a.quantity * a.avgPrice;
+        const invB = b.quantity * b.avgPrice;
+        const rateA = invA > 0 ? (a.quantity * ((a.currentPrice || 0) - a.avgPrice)) / invA : 0;
+        const rateB = invB > 0 ? (b.quantity * ((b.currentPrice || 0) - b.avgPrice)) / invB : 0;
+        cmp = rateA - rateB;
+      } else {
+        cmp = (a[sortKey] || 0) - (b[sortKey] || 0);
+      }
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+  })();
 
   const formatProfitLoss = (value: number) => {
     if (value > 0) return `+${formatNumber(value)}`;
@@ -198,15 +249,15 @@ export default function HoldingsTable({
             <table className="w-full text-xs">
               <thead>
                 <tr className="bg-primary text-primary-fg">
-                  <th className="px-3 py-3 text-left font-semibold">구분</th>
-                  <th className="px-3 py-3 text-left font-semibold">종목</th>
+                  <th className="px-3 py-3 text-left font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("category")}>구분{sortIndicator("category")}</th>
+                  <th className="px-3 py-3 text-left font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("name")}>종목{sortIndicator("name")}</th>
                   <th className="px-3 py-3 text-center font-semibold">종목코드</th>
-                  <th className="px-3 py-3 text-right font-semibold">수량</th>
-                  <th className="px-3 py-3 text-right font-semibold">평단가</th>
-                  <th className="px-3 py-3 text-right font-semibold">현재가</th>
-                  <th className="px-3 py-3 text-right font-semibold">평가액</th>
-                  <th className="px-3 py-3 text-right font-semibold">손익</th>
-                  <th className="px-3 py-3 text-right font-semibold">수익률</th>
+                  <th className="px-3 py-3 text-right font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("quantity")}>수량{sortIndicator("quantity")}</th>
+                  <th className="px-3 py-3 text-right font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("avgPrice")}>평단가{sortIndicator("avgPrice")}</th>
+                  <th className="px-3 py-3 text-right font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("currentPrice")}>현재가{sortIndicator("currentPrice")}</th>
+                  <th className="px-3 py-3 text-right font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("evalAmount")}>평가액{sortIndicator("evalAmount")}</th>
+                  <th className="px-3 py-3 text-right font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("profitLoss")}>손익{sortIndicator("profitLoss")}</th>
+                  <th className="px-3 py-3 text-right font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("returnRate")}>수익률{sortIndicator("returnRate")}</th>
                   <th className="px-3 py-3 text-center font-semibold">시세</th>
                   <th className="px-3 py-3 text-center font-semibold">삭제</th>
                 </tr>
@@ -326,9 +377,26 @@ export default function HoldingsTable({
             </table>
           </div>
 
+          {/* Mobile sort chips */}
+          <div className="md:hidden flex items-center gap-2 px-5 py-2.5 overflow-x-auto border-b border-card-border bg-table-hover/30">
+            {(["category", "name", "evalAmount", "profitLoss", "returnRate"] as SortKey[]).map((key) => (
+              <button
+                key={key}
+                onClick={() => toggleSort(key)}
+                className={`flex-shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                  sortKey === key
+                    ? "bg-primary text-primary-fg border-primary font-bold"
+                    : "bg-card-bg text-muted-foreground border-card-border"
+                }`}
+              >
+                {SORT_LABELS[key]}{sortKey === key ? (sortDir === "asc" ? " ▲" : " ▼") : ""}
+              </button>
+            ))}
+          </div>
+
           {/* Mobile card list — 3-line layout */}
           <div className="md:hidden divide-y divide-card-border">
-            {items.map((item) => {
+            {sortedItems.map((item) => {
               const ev = evaluateHolding(item);
               const isLoading = loadingCodes.has(item.code);
               const dotColor = CATEGORY_BG_COLORS[item.category] || "bg-primary";

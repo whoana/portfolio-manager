@@ -13,6 +13,17 @@ interface PortfolioTableProps {
   onEditClick: (stock: PortfolioStock) => void;
 }
 
+type SortKey = "category" | "name" | "targetWeight" | "dividendRate" | "currentPrice";
+type SortDir = "asc" | "desc";
+
+const SORT_LABELS: Record<SortKey, string> = {
+  category: "구분",
+  name: "종목명",
+  targetWeight: "비중",
+  dividendRate: "배당률",
+  currentPrice: "현재가",
+};
+
 export default function PortfolioTable({
   stocks,
   onUpdate,
@@ -22,6 +33,33 @@ export default function PortfolioTable({
   const [loadingCodes, setLoadingCodes] = useState<Set<string>>(new Set());
   const [errorMsg, setErrorMsg] = useState("");
   const autoRefreshDone = useRef(false);
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  };
+
+  const sortedStocks = (() => {
+    if (!sortKey) return stocks;
+    return [...stocks].sort((a, b) => {
+      let cmp = 0;
+      if (sortKey === "category" || sortKey === "name") {
+        cmp = a[sortKey].localeCompare(b[sortKey]);
+      } else {
+        cmp = (a[sortKey] || 0) - (b[sortKey] || 0);
+      }
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+  })();
+
+  const sortIndicator = (key: SortKey) =>
+    sortKey === key ? (sortDir === "asc" ? " ▲" : " ▼") : "";
 
   useEffect(() => {
     if (stocks.length > 0 && !autoRefreshDone.current) {
@@ -140,19 +178,19 @@ export default function PortfolioTable({
             <table className="w-full text-xs">
               <thead>
                 <tr className="bg-primary text-primary-fg">
-                  <th className="px-3 py-3 text-left font-semibold">구분</th>
-                  <th className="px-3 py-3 text-left font-semibold">ETF 종목명</th>
+                  <th className="px-3 py-3 text-left font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("category")}>구분{sortIndicator("category")}</th>
+                  <th className="px-3 py-3 text-left font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("name")}>ETF 종목명{sortIndicator("name")}</th>
                   <th className="px-3 py-3 text-center font-semibold">종목코드</th>
-                  <th className="px-3 py-3 text-center font-semibold">목표비중</th>
-                  <th className="px-3 py-3 text-center font-semibold">연배당률</th>
-                  <th className="px-3 py-3 text-right font-semibold">현재가</th>
+                  <th className="px-3 py-3 text-center font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("targetWeight")}>목표비중{sortIndicator("targetWeight")}</th>
+                  <th className="px-3 py-3 text-center font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("dividendRate")}>연배당률{sortIndicator("dividendRate")}</th>
+                  <th className="px-3 py-3 text-right font-semibold cursor-pointer select-none hover:bg-primary/80 transition-colors" onClick={() => toggleSort("currentPrice")}>현재가{sortIndicator("currentPrice")}</th>
                   <th className="px-3 py-3 text-left font-semibold">전략특성</th>
                   <th className="px-3 py-3 text-center font-semibold">시세</th>
                   <th className="px-3 py-3 text-center font-semibold">삭제</th>
                 </tr>
               </thead>
               <tbody>
-                {stocks.map((stock) => {
+                {sortedStocks.map((stock) => {
                   const isLoading = loadingCodes.has(stock.code);
                   return (
                     <tr
@@ -223,9 +261,26 @@ export default function PortfolioTable({
             </table>
           </div>
 
+          {/* Mobile sort chips */}
+          <div className="md:hidden flex items-center gap-2 px-5 py-2.5 overflow-x-auto border-b border-card-border bg-table-hover/30">
+            {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
+              <button
+                key={key}
+                onClick={() => toggleSort(key)}
+                className={`flex-shrink-0 text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                  sortKey === key
+                    ? "bg-primary text-primary-fg border-primary font-bold"
+                    : "bg-card-bg text-muted-foreground border-card-border"
+                }`}
+              >
+                {SORT_LABELS[key]}{sortKey === key ? (sortDir === "asc" ? " ▲" : " ▼") : ""}
+              </button>
+            ))}
+          </div>
+
           {/* Mobile card list — 3-line layout */}
           <div className="md:hidden divide-y divide-card-border">
-            {stocks.map((stock) => {
+            {sortedStocks.map((stock) => {
               const isLoading = loadingCodes.has(stock.code);
               const dotColor = CATEGORY_BG_COLORS[stock.category] || "bg-primary";
               const catLines = stock.category.length > 2
