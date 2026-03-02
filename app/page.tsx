@@ -548,7 +548,7 @@ export default function HomePage() {
                   onExportData={handleExportData}
                 />
                 {holdingItems.length > 0 && (
-                  <HoldingsSummary items={holdingItems} />
+                  <HoldingsSummary items={holdingItems} stocks={activePortfolio.stocks} />
                 )}
                 {holdingItems.length > 0 && activePortfolio.stocks.length > 0 && (
                   <WeightComparisonChart stocks={activePortfolio.stocks} holdings={holdingItems} />
@@ -621,7 +621,7 @@ export default function HomePage() {
                       onExportData={handleExportData}
                     />
                     {holdingItems.length > 0 && (
-                      <HoldingsSummary items={holdingItems} />
+                      <HoldingsSummary items={holdingItems} stocks={activePortfolio.stocks} />
                     )}
                     {holdingItems.length > 0 && activePortfolio.stocks.length > 0 && (
                       <WeightComparisonChart stocks={activePortfolio.stocks} holdings={holdingItems} />

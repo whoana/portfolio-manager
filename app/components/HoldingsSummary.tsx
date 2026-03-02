@@ -1,18 +1,39 @@
 "use client";
 
-import { HoldingItem } from "@/app/lib/types";
-import { formatNumber } from "@/app/lib/portfolioCalc";
+import { HoldingItem, PortfolioStock } from "@/app/lib/types";
+import { formatNumber, formatPercent } from "@/app/lib/portfolioCalc";
 import { evaluateAllHoldings, calcCategoryEvaluations } from "@/app/lib/holdingsCalc";
 import PieChart from "./PieChart";
 import { CATEGORY_COLORS } from "@/app/lib/constants";
 
 interface HoldingsSummaryProps {
   items: HoldingItem[];
+  stocks?: PortfolioStock[];
 }
 
-export default function HoldingsSummary({ items }: HoldingsSummaryProps) {
+export default function HoldingsSummary({ items, stocks = [] }: HoldingsSummaryProps) {
   const { totalInvest, totalEval, totalProfitLoss, totalReturnRate } = evaluateAllHoldings(items);
   const categoryEvals = calcCategoryEvaluations(items);
+
+  // 가중평균 배당률 계산: 보유 종목의 평가액 기준 가중 평균
+  const dividendMap = new Map(stocks.map((s) => [s.code, s.dividendRate]));
+  const { weightedDivRate, estAnnualDiv } = (() => {
+    let sumWeightedRate = 0;
+    let sumEval = 0;
+    let annualDiv = 0;
+    for (const item of items) {
+      const rate = dividendMap.get(item.code) || 0;
+      const evalAmt = item.quantity * (item.currentPrice || 0);
+      sumWeightedRate += rate * evalAmt;
+      sumEval += evalAmt;
+      annualDiv += evalAmt * rate;
+    }
+    return {
+      weightedDivRate: sumEval > 0 ? sumWeightedRate / sumEval : 0,
+      estAnnualDiv: annualDiv,
+    };
+  })();
+  const estMonthlyDiv = Math.round(estAnnualDiv / 12);
 
   const chartData = categoryEvals.map((ce, i) => ({
     label: ce.category,
@@ -86,7 +107,7 @@ export default function HoldingsSummary({ items }: HoldingsSummaryProps) {
           </div>
         </div>
         {/* Stats grid */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-4 gap-4 mb-4">
           <div className="flex flex-col gap-1">
             <span className="text-xs text-muted">투자원금</span>
             <span className="text-lg font-bold text-primary">{formatNumber(totalInvest)}원</span>
@@ -108,6 +129,22 @@ export default function HoldingsSummary({ items }: HoldingsSummaryProps) {
             </span>
           </div>
         </div>
+        {stocks.length > 0 && (
+          <div className="grid grid-cols-3 gap-4 pt-4 border-t border-card-border">
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-muted">가중평균 배당률</span>
+              <span className="text-lg font-bold text-accent-green">{formatPercent(weightedDivRate)}</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-muted">예상 월배당</span>
+              <span className="text-lg font-bold text-accent-green">{formatNumber(estMonthlyDiv)}원</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-xs text-muted">예상 연배당</span>
+              <span className="text-lg font-bold text-accent-green">{formatNumber(Math.round(estAnnualDiv))}원</span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Mobile — Toss style */}
@@ -157,7 +194,20 @@ export default function HoldingsSummary({ items }: HoldingsSummaryProps) {
             <div className="text-2xl font-bold text-primary">{formatAmountShort(totalEval)}</div>
           </div>
         </div>
-        {/* P&L row */}
+        {/* Dividend cards */}
+        {stocks.length > 0 && (
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-accent-green-bg rounded-2xl p-5 text-center">
+              <div className="text-xs text-muted mb-2">예상 월배당</div>
+              <div className="text-[26px] font-bold text-accent-green">{formatNumber(estMonthlyDiv)}원</div>
+            </div>
+            <div className="bg-accent-green-bg rounded-2xl p-5 text-center">
+              <div className="text-xs text-muted mb-2">예상 연배당</div>
+              <div className="text-[26px] font-bold text-accent-green">{formatNumber(Math.round(estAnnualDiv))}원</div>
+            </div>
+          </div>
+        )}
+        {/* P&L + dividend rate row */}
         <div className="bg-table-hover rounded-2xl px-5 py-4">
           <div className="flex items-center justify-between py-3.5">
             <span className="text-[15px] text-muted-foreground">총 손익</span>
@@ -172,6 +222,15 @@ export default function HoldingsSummary({ items }: HoldingsSummaryProps) {
               {formatRate(totalReturnRate)}
             </span>
           </div>
+          {stocks.length > 0 && (
+            <>
+              <div className="border-t border-card-border" />
+              <div className="flex items-center justify-between py-3.5">
+                <span className="text-[15px] text-muted-foreground">가중평균 배당률</span>
+                <span className="text-[15px] font-bold text-accent-green">{formatPercent(weightedDivRate)}</span>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
