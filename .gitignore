@@ -46,8 +46,27 @@ Thumbs.db
 # claude code
 .claude/
 
+# bkit
+.bkit/
+
 # large media
 resources/videos/
+
+# screenshots / images (QA, 디버깅용)
+*.png
+*.jpg
+*.jpeg
+
+# nohup
+nohup.out
+
+# temp files (루트에 남은 임시 jsx 파일 등)
+/investment-cards*.jsx
+
+# pdca / docs temp
+docs/.bkit-memory.json
+docs/.pdca-snapshots/
+docs/.pdca-status.json
 
 # misc
 *.pem
