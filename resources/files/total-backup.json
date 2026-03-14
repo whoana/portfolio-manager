@@ -1,0 +1,321 @@
+{
+  "appName": "etf-portfolio-manager",
+  "version": 1,
+  "exportedAt": "2026-03-01T09:31:35.836Z",
+  "data": {
+    "portfolios": [
+      {
+        "id": "portfolio_1771807743289",
+        "name": "내 ETF 포트폴리오",
+        "stocks": [
+          {
+            "id": "demo_1",
+            "category": "배당성장",
+            "name": "TIGER 미국배당다우존스",
+            "code": "458730",
+            "targetWeight": 0.3,
+            "dividendRate": 0.035,
+            "strategy": "미국 배당 성장주 ETF (SCHD 추종)",
+            "analysis": "안정적인 배당 수익 확보",
+            "rationale": "장기 배당 성장 이력을 가진 미국 우량주 중심, 월배당",
+            "currentPrice": 14285
+          },
+          {
+            "id": "demo_2",
+            "category": "배당성장",
+            "name": "TIGER 코리아배당다우존스",
+            "code": "0052D0",
+            "targetWeight": 0.1,
+            "dividendRate": 0.045,
+            "currentPrice": 17595,
+            "strategy": "국내 배당 성장주 ETF",
+            "analysis": "국내 배당 수익 + 원화 자산 비중 확보",
+            "rationale": "배당 성장 기업 중심으로 안정성과 수익성 균형"
+          },
+          {
+            "id": "demo_3",
+            "category": "고배당",
+            "name": "KODEX 미국배당커버드콜액티브",
+            "code": "441640",
+            "targetWeight": 0.1,
+            "dividendRate": 0.08,
+            "currentPrice": 12770,
+            "strategy": "커버드콜 전략으로 고배당 실현",
+            "analysis": "월 고배당 현금흐름 창출",
+            "rationale": "옵션 프리미엄 활용으로 높은 배당수익률 달성"
+          },
+          {
+            "id": "demo_4",
+            "category": "성장동력",
+            "name": "KODEX 미국S&P500",
+            "code": "379800",
+            "targetWeight": 0.12,
+            "dividendRate": 0.012,
+            "strategy": "미국 S&P500 인덱스 추종",
+            "analysis": "장기 자본 성장",
+            "rationale": "미국 시장 전반에 노출, 장기 성장 기대",
+            "currentPrice": 22445
+          },
+          {
+            "id": "demo_5",
+            "category": "성장동력",
+            "name": "TIGER 미국테크TOP10 INDXX",
+            "code": "381170",
+            "targetWeight": 0.08,
+            "dividendRate": 0.003,
+            "strategy": "미국 빅테크 집중 투자",
+            "analysis": "고성장 기술주 노출",
+            "rationale": "AI/기술 섹터 성장 수혜를 위한 집중 투자",
+            "currentPrice": 28640
+          },
+          {
+            "id": "demo_6",
+            "category": "안전판",
+            "name": "KODEX CD금리액티브(합성)",
+            "code": "459580",
+            "targetWeight": 0.2,
+            "dividendRate": 0.035,
+            "strategy": "CD금리 연동 안전 자산",
+            "analysis": "자본 보전 + 유동성 확보",
+            "rationale": "금리 연동 상품으로 하방 리스크 최소화",
+            "currentPrice": 1073310
+          },
+          {
+            "id": "stock_1772357201407",
+            "category": "고배당",
+            "name": "TIME Korea플러스배당액티브",
+            "code": "441800",
+            "targetWeight": 0.1,
+            "dividendRate": 0.044000000000000004,
+            "currentPrice": 30275,
+            "strategy": "고배당 액티브 ETF",
+            "analysis": "고배당",
+            "rationale": "현금흐름"
+          }
+        ],
+        "investmentAmount": 500000000,
+        "createdAt": "2026-02-23T00:49:03.289Z",
+        "updatedAt": "2026-03-01T09:29:26.006Z"
+      }
+    ],
+    "holdings": [
+      {
+        "portfolioId": "portfolio_1771807743289",
+        "items": [
+          {
+            "id": "holding_1772357428018_1",
+            "category": "안전판",
+            "name": "Samsung KODEX CD Rate Active ETF (Synth)",
+            "code": "459580",
+            "quantity": 67,
+            "avgPrice": 1073726,
+            "currentPrice": 1073310
+          },
+          {
+            "id": "holding_1772357428018_2",
+            "category": "배당성장",
+            "name": "SOL US Dividend Equity",
+            "code": "446720",
+            "quantity": 3814,
+            "avgPrice": 9175,
+            "currentPrice": 13085
+          },
+          {
+            "id": "holding_1772357428018_3",
+            "category": "배당성장",
+            "name": "SOL US Dividend Equity채권혼합50",
+            "code": "490490",
+            "quantity": 2919,
+            "avgPrice": 10297,
+            "currentPrice": 11275
+          },
+          {
+            "id": "holding_1772357428018_4",
+            "category": "배당성장",
+            "name": "TIGER U.S. Dividend Equity",
+            "code": "458730",
+            "quantity": 6200,
+            "avgPrice": 12446,
+            "currentPrice": 14285
+          },
+          {
+            "id": "holding_1772357428018_5",
+            "category": "배당성장",
+            "name": "TIGER 코리아배당다우존스",
+            "code": "0052D0",
+            "quantity": 948,
+            "avgPrice": 15023,
+            "currentPrice": 17595
+          },
+          {
+            "id": "holding_1772357428018_6",
+            "category": "고배당",
+            "name": "KODEX US Dividend Covered Call Active",
+            "code": "441640",
+            "quantity": 4326,
+            "avgPrice": 12218,
+            "currentPrice": 12770
+          },
+          {
+            "id": "holding_1772357428018_7",
+            "category": "고배당",
+            "name": "TIMEFOLIO TIME KOREA PLUS DIVIDEND ACTIVE ETF",
+            "code": "441800",
+            "quantity": 354,
+            "avgPrice": 30300,
+            "currentPrice": 30275
+          },
+          {
+            "id": "holding_1772357428018_8",
+            "category": "성장동력",
+            "name": "KODEX S&P500",
+            "code": "379800",
+            "quantity": 24,
+            "avgPrice": 19664,
+            "currentPrice": 22445
+          },
+          {
+            "id": "holding_1772357428018_9",
+            "category": "성장동력",
+            "name": "MIRAE ASSET TIGER S&P500 ETF",
+            "code": "360750",
+            "quantity": 1032,
+            "avgPrice": 15343,
+            "currentPrice": 24565
+          },
+          {
+            "id": "holding_1772357428018_10",
+            "category": "기술주",
+            "name": "Alphabet Inc Class C",
+            "code": "GOOG",
+            "quantity": 33,
+            "avgPrice": 91308,
+            "currentPrice": 450639
+          },
+          {
+            "id": "holding_1772357428018_11",
+            "category": "기술주",
+            "name": "Amazon.com Inc",
+            "code": "AMZN",
+            "quantity": 18,
+            "avgPrice": 321493,
+            "currentPrice": 303870
+          },
+          {
+            "id": "holding_1772357428018_12",
+            "category": "기술주",
+            "name": "Apple Inc",
+            "code": "AAPL",
+            "quantity": 99,
+            "avgPrice": 359648,
+            "currentPrice": 382268
+          },
+          {
+            "id": "holding_1772357428018_13",
+            "category": "기술주",
+            "name": "KODEX US NASDAQ100",
+            "code": "379810",
+            "quantity": 45,
+            "avgPrice": 20701,
+            "currentPrice": 23830
+          },
+          {
+            "id": "holding_1772357428018_14",
+            "category": "기술주",
+            "name": "MIRAE ASSET TIGER SEMICONDUCTOR TOP 10 ETF",
+            "code": "396500",
+            "quantity": 101,
+            "avgPrice": 28305,
+            "currentPrice": 36090
+          },
+          {
+            "id": "holding_1772357428018_15",
+            "category": "기술주",
+            "name": "Microsoft Corp",
+            "code": "MSFT",
+            "quantity": 30,
+            "avgPrice": 527642,
+            "currentPrice": 568295
+          },
+          {
+            "id": "holding_1772357428018_16",
+            "category": "기술주",
+            "name": "NVIDIA Corp",
+            "code": "NVDA",
+            "quantity": 176,
+            "avgPrice": 187821,
+            "currentPrice": 256394
+          },
+          {
+            "id": "holding_1772357428018_17",
+            "category": "기술주",
+            "name": "Palantir Technologies Inc",
+            "code": "PLTR",
+            "quantity": 55,
+            "avgPrice": 106848,
+            "currentPrice": 198514
+          },
+          {
+            "id": "holding_1772357428018_18",
+            "category": "기술주",
+            "name": "Samsung Electronics Co Ltd",
+            "code": "005930",
+            "quantity": 4,
+            "avgPrice": 139700,
+            "currentPrice": 216500
+          },
+          {
+            "id": "holding_1772357428018_19",
+            "category": "기술주",
+            "name": "Samsung Electronics Co Ltd Preference Shares Non Voting",
+            "code": "005935",
+            "quantity": 92,
+            "avgPrice": 43556,
+            "currentPrice": 143800
+          },
+          {
+            "id": "holding_1772357428018_20",
+            "category": "기술주",
+            "name": "TIGER NASDAQ100",
+            "code": "133690",
+            "quantity": 24,
+            "avgPrice": 80281,
+            "currentPrice": 159050
+          },
+          {
+            "id": "holding_1772357428018_21",
+            "category": "기술주",
+            "name": "TIME US NASDAQ100 ACTIVE",
+            "code": "426030",
+            "quantity": 22,
+            "avgPrice": 33849,
+            "currentPrice": 37495
+          },
+          {
+            "id": "holding_1772357428018_22",
+            "category": "기술주",
+            "name": "VanEck Semiconductor ETF",
+            "code": "SMH",
+            "quantity": 17,
+            "avgPrice": 201125,
+            "currentPrice": 588017
+          },
+          {
+            "id": "holding_1772357428018_23",
+            "category": "기술주",
+            "name": "Visa Inc",
+            "code": "V",
+            "quantity": 14,
+            "avgPrice": 374083,
+            "currentPrice": 463243
+          }
+        ],
+        "updatedAt": "2026-03-01T09:30:45.845Z"
+      }
+    ],
+    "settings": {
+      "theme": "toss",
+      "helpEnabled": false
+    }
+  }
+}

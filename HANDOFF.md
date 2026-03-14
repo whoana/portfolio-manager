@@ -2,16 +2,22 @@
 
 ## Goal
 
-누구나 쉽게 사용할 수 있는 ETF 포트폴리오 관리 웹앱.
+누구나 쉽게 사용할 수 있는 ETF 포트폴리오 관리 웹앱 + iOS 네이티브 앱.
 종목 검색(코드/한글/영문) -> 포트폴리오 구성(비중 설정) -> 투자금액별 자동계산 -> Excel 내보내기 -> 자산성장 전망 리포트.
 **모바일 UX는 토스앱 스타일로 리디자인 완료.**
 **보유 내역 관리 + 평가액 기능 구현 완료.**
+**SwiftUI 네이티브 iOS 앱 구현 + 시뮬레이터 실행 + XCUITest 자동화 테스트 완료.**
+**데이터 관리(CSV/JSON Import/Export) + 인트로 화면 + 앱 아이콘/표시이름 + iPhone 실기기 배포 완료.**
 
 ---
 
 ## Current Progress
 
-**전체 기능 구현 완료. 보유 내역 관리 기능 추가. 빌드/테스트 모두 정상. (136 tests)**
+**웹앱: 전체 기능 구현 완료. (136 tests)**
+**iOS SwiftUI 앱: 전체 구현 + 유닛 27 + UI 15 = 42 tests 전체 통과. 시뮬레이터 실행 검증 완료.**
+**iOS 앱: 데이터 관리 6개 메뉴 + 인트로 화면 + 앱 아이콘 + 표시이름 + iPhone 실기기 배포 완료. (2026-03-14)**
+
+### 웹앱 (Next.js)
 
 - [x] 초기 구현 완료 (Phase 1~6)
 - [x] 한글 종목 검색 지원 추가
@@ -25,41 +31,66 @@
 - [x] **토스앱 스타일 모바일 UI 리디자인** (f769917)
 - [x] **보유 내역 관리 + 평가액 기능 전체 구현** (559f0da)
 
-### 최근 커밋 (최신순)
+### iOS SwiftUI 앱 (mobile/swiftui/)
 
-```
-559f0da feat: 보유 내역 관리 + 평가액 기능 전체 구현
-fae1a74 chore: 기본 테마를 toss로 변경
-4de6819 fix: 모바일 설정바를 접이식 기어 아이콘으로 변경
-b96ac15 feat: 포트폴리오 요약에 종목 구분별 포지션 원형차트 추가
-f769917 feat: 토스앱 스타일 모바일 UI 리디자인
-```
+- [x] 설계서 2종 작성 (`docs/ios-swiftui-design.md`, `docs/ios-expo-design.md`)
+- [x] 설계서 Gap Analysis 완료 (98.5% Match Rate)
+- [x] **SwiftUI 네이티브 전체 구현 (32 Swift 소스 파일)**
+- [x] **유닛 테스트 27개 전체 통과 (4 스위트)**
+- [x] **xcodegen으로 .xcodeproj 생성 (project.yml 기반)**
+- [x] **iOS 시뮬레이터에서 앱 실행 확인 (iPhone 17 Pro)**
+- [x] **XCUITest 자동화 15개 전체 통과 (2 스위트)**
+- [x] **데모 데이터 시더 (DemoDataSeeder) — 441640 50% + 458730 50% 자동 구성**
+- [x] **데이터 관리 기능 (와플 메뉴 6개 항목)** — CSV/JSON Import/Export
+- [x] **인트로 화면** — 웹앱 IntroPage 포팅 (5장 카드 캐러셀 + 복리 시뮬레이션)
+- [x] **앱 아이콘** — 1024x1024 universal icon (Assets.xcassets)
+- [x] **앱 표시이름** — "마이포트맨" (CFBundleDisplayName)
+- [x] **타이틀 클릭 → 인트로 복귀** — "포트폴리오 매니저" 헤더 버튼
+- [x] **iPhone 실기기(13 Pro) 배포** — xcodebuild + devicectl
 
-### 보유 내역 기능 (559f0da) 상세
+#### 데이터 관리 메뉴 (DataMenuSheet)
 
-5개 Phase로 구현 완료:
+| # | 메뉴 | 방향 | 포맷 |
+|---|------|------|------|
+| 1 | 포트폴리오 저장 | Export | CSV (`구분,종목,종목코드,비중,배당률,전략`) |
+| 2 | 보유내역 들여오기 | Import | CSV (`구분,종목,종목코드,수량,평단가`) |
+| 3 | 보유내역 내보내기 | Export | CSV (동일) |
+| 4 | 보유내역 템플릿 내보내기 | Export | CSV (헤더만) |
+| 5 | 전체데이터 내보내기(백업) | Export | JSON (ExportFileFormat) |
+| 6 | 전체데이터 들여오기(덮어씌우기) | Import | JSON (동일) |
 
-| Phase | 내용 | 상태 |
-|-------|------|------|
-| 1 | 데이터 모델 + 저장소 + 수동 입력 + 그리드 | 완료 |
-| 2 | CSV Import / Export (드래그앤드롭, 자동 구분자 감지, RFC 4180) | 완료 |
-| 3 | 카테고리별 평가액 원형차트 (HoldingsSummary) | 완료 |
-| 4 | 목표비중 vs 실제비중 비교 바차트 (카테고리별/종목별 토글) | 완료 |
-| 5 | Excel 보유내역 시트 추가 + 공통 상수 추출 (constants.ts) | 완료 |
+#### iOS 테스트 결과 상세 (42 tests, 전체 통과)
 
-**신규 파일 11개, 수정 파일 6개, 테스트 3개 (34 tests)**
+| 스위트 | 유형 | 테스트 수 | 검증 대상 |
+|--------|------|-----------|-----------|
+| PortfolioCalculator 테스트 | Unit | 8 | 투자배분, 합계, 카테고리포지션, 포맷팅 |
+| GrowthCalculator 테스트 | Unit | 6 | 10년 성장 시뮬레이션, 배당성장 복리 |
+| HoldingsCalculator 테스트 | Unit | 7 | 보유종목 평가, 카테고리집계, 비중비교 |
+| NaverStockService 테스트 | Unit | 4+2 | 해외주식 감지 (점포함/순수영문/국내/혼합) |
+| FullFeatureUITests | UI | 10 | 탭전환, 종목추가시트, 포트폴리오메뉴, 각탭콘텐츠 |
+| ScreenshotTests | UI | 5 | 2종목50/50 구성, 각탭 데이터 검증+스크린샷 |
 
-**설계 체크 완료 사항:**
-- 포트폴리오에 없는 종목이 보유내역에 포함되어도 문제 없음
-- 비중 비교 함수들은 양쪽 합집합으로 동작 (targetWeight: 0으로 표시)
-- 현재가 조회는 종목코드 기반 (포트폴리오 stocks와 독립적)
-- CSV import 시 currentPrice 미설정 → `|| 0` 방어 + HoldingsTable 마운트 시 자동 갱신
+#### iOS 구현 상세
+
+| 계층 | 파일 수 | 주요 내용 |
+|------|---------|-----------|
+| Models | 4 | SwiftData `@Model` (Portfolio, Holdings, CachedPrice) + 계산 구조체 |
+| Calculators | 3 | PortfolioCalculator, GrowthCalculator, HoldingsCalculator (웹앱 1:1 포팅) |
+| Services | 3 | NaverStockService (actor), BiometricAuth, DataManager (CSV/JSON) |
+| ViewModels | 4 | MVVM 패턴 (Portfolio, Allocation, Growth, Holdings) |
+| Views | 14 | 5탭 TabView + 컴포넌트 4 + 시트 5 (DataMenu, AddHolding, DocumentPicker 추가) + IntroView |
+| Theme | 3 | TossColors, TossTypography, ThemeManager |
+| Constants | 1 | Categories |
+| Utilities | 1 | Haptics (`#if canImport(UIKit)`) |
+| Tests | 4 | 유닛 27 tests |
+| UITests | 2 | XCUITest 15 tests |
 
 ---
 
 ## What Worked
 
-### 플랫폼 / 기술 스택
+### 웹앱
+
 | 항목 | 결정 |
 |------|------|
 | 프레임워크 | Next.js 14.2.30 (App Router) + TypeScript |
@@ -69,69 +100,64 @@ f769917 feat: 토스앱 스타일 모바일 UI 리디자인
 | 저장소 | localStorage (JSON) -- DB 없이 |
 | 테스트 | Vitest 2.1.9 + @testing-library/react + MSW 2.6.4 |
 
+### iOS SwiftUI
+
+| 항목 | 결정 |
+|------|------|
+| 아키텍처 | MVVM + SwiftData (`@Model`) |
+| 최소 지원 | iOS 17.0 |
+| 네이버 API | actor 기반 NaverStockService (CORS 제약 없이 직접 호출) |
+| 해외주식 감지 | `code.allSatisfy { $0.isLetter && $0.isASCII }` (Swift 6 regex 대체) |
+| 빌드 시스템 | Package.swift (유닛 테스트용) + xcodegen project.yml (앱+UITest용) |
+| UI | 토스 스타일 5탭 TabView, Swift Charts SectorMark 파이차트 |
+| UI 테스트 | XCUITest — accessibilityIdentifier로 요소 찾기, takeScreenshot 패턴 |
+| 데모 데이터 | DemoDataSeeder — 앱 첫 실행 시 2종목 50/50 포트폴리오 + 보유내역 자동 생성 |
+| 파일 공유 | ShareHelper (UIKit 직접 present) — SwiftUI 중첩 sheet 제약 우회 |
+| 파일 가져오기 | DocumentPicker (UIDocumentPickerViewController 래퍼) |
+| 온보딩 | @AppStorage("hasSeenIntro") 게이팅 + IntroView 캐러셀 |
+| 실기기 배포 | xcodebuild build → xcrun devicectl device install app |
+
 ### 네이버 API 엔드포인트
-- 종목 검색: `https://ac.stock.naver.com/ac?q={query}&target=stock&st=111` (영문/한글/코드 모두 지원)
-- 현재가 조회: `https://m.stock.naver.com/api/stock/{code}/basic`
+- 종목 검색: `https://ac.stock.naver.com/ac?q={query}&target=stock&st=111`
+- 국내 현재가: `https://m.stock.naver.com/api/stock/{code}/basic` + `/integration`
+- 해외 현재가: `https://api.stock.naver.com/stock/{code}/basic` (접미사 순차 시도: `.O .N .A .K`)
+- 환율: `https://api.stock.naver.com/marketindex/exchange/{FX코드}`
 
-### Vitest 설정 핵심
-- `vite-tsconfig-paths` ESM 충돌 -> `resolve.alias: { "@": path.resolve(__dirname, ".") }` 로 대체
-- `vi.useFakeTimers()` + `waitFor` 타임아웃 -> 실제 타이머 + `delay: null` 방식으로 해결
-- `scrollIntoView` jsdom 미구현 -> `tests/setup.ts`에 `Element.prototype.scrollIntoView = vi.fn()` 추가
-
-### Excel 수식 셀 빈 값 버그 원인
-ExcelJS로 `{ formula: '...' }` 만 쓰면 캐시값(`<v>`)이 없어 Numbers/Excel에서 빈 셀로 표시됨.
--> 모든 수식 셀에 `result` 값 추가: `{ formula: '...', result: 계산값 }` 으로 해결.
-
-### 보유 내역 기능 설계 포인트
-- `HoldingItem`은 `PortfolioStock`과 독립적 -- `code`가 조인 키 (비중 비교용)
-- 평가액(`quantity * currentPrice`)은 파생값으로 저장하지 않고 런타임 계산
-- `holdingsCalc.ts`의 모든 `currentPrice` 참조는 `|| 0` 패턴으로 undefined 방어
-- `compareWeightsByCategory/Stock` 함수는 양쪽 합집합(Set)으로 순회 → 한쪽에만 있는 항목도 안전
-- MapIterator spread 시 `Array.from()` 필수 (TypeScript downlevelIteration 미사용)
-
-### 토스 스타일 모바일 리디자인 (f769917)
-
-**적용된 토스 UX 패턴:**
-- **한 화면, 한 기능** -- 히어로 카드로 핵심 정보 즉시 노출
-- **큰 숫자, 작은 라벨** -- 금액 text-2xl~3xl, 라벨 text-[10px]~[11px]
-- **여유로운 여백** -- px-5, py-5~6
-- **미세한 그림자** -- shadow-sm (border 대신)
-- **rounded-2xl** -- 부드러운 카드 모서리
-- **컬러 카테고리** -- 종목별 원형 뱃지로 시각적 구분
-- **ListRow 패턴** -- 좌: 아이콘+이름, 우: 금액+chevron
-- **BottomCTA** -- 모달 하단 고정 버튼 (주요 버튼 2배 넓게)
-- **드래그 핸들** -- 모달 상단 회색 바
-
-**핵심 설계 원칙:**
-- 데스크톱 UI는 변경 없음 (`md:` 브레이크포인트로 분리)
-- 기존 3개 테마(Claude/Dark/Classic) 유지 + Toss 추가
-- 비즈니스 로직(lib/) 변경 없음
-- 테스트 전체 통과
+### XCUITest 팁
+- `accessibilityIdentifier`를 SwiftUI View에 추가하여 UI 요소를 안정적으로 찾기
+- `NSPredicate(format: "label CONTAINS '...'")` — 부분 텍스트 매칭에 유용
+- `app.staticTexts["정확한 텍스트"]` — 정확한 매칭
+- `continueAfterFailure = true` — 하나 실패해도 나머지 검증 계속
+- 각 테스트는 앱을 재실행하므로 데이터 시더가 필수
 
 ---
 
 ## What Didn't Work
 
-- `npx create-next-app@latest` -> 기존 파일 충돌, 직접 파일 생성으로 대체
-- npm cache EPERM 오류 -> `--cache /tmp/claude/npm-cache` 로 해결
+### 웹앱
 - `vite-tsconfig-paths` 패키지 -> ESM only로 vitest.config.ts에서 CJS require 불가, 직접 alias 설정으로 대체
-- **Playwright 스크린샷** -> Chrome이 이미 실행 중이면 `browserType.launchPersistentContext` 실패. 기존 Chrome 세션과 충돌
-- **Puppeteer 스크린샷** -> `deviceScaleFactor: 2`에서 `Page.captureScreenshot timed out`. DPR 1로 낮춰도 protocolTimeout 필요
-- **PortfolioTable 버튼 텍스트 변경** -> 모바일용 짧은 텍스트("갱신")와 데스크톱 텍스트("전체 시세 갱신")를 `hidden md:inline` / `md:hidden`으로 분리했으나, JSDOM 테스트에서 media query 미적용으로 두 텍스트 모두 렌더링됨 -> `aria-label`로 해결
-- **MapIterator spread** -> `new Set([...targetMap.keys()])` 패턴이 TypeScript `downlevelIteration` 없으면 컴파일 에러 -> `Array.from(map.keys())` 로 해결
+- **Playwright/Puppeteer 스크린샷** -> Chrome 실행 중 충돌, timeout 이슈
+- **MapIterator spread** -> `Array.from(map.keys())` 로 해결
 
----
-
-## 테마 시스템 (4개)
-
-| 테마명 | 설명 | 배경 | 주요색 |
-|--------|------|------|--------|
-| `claude` | 기본 테마 (앰버/오렌지) | #FFFBF5 | #C77A2A |
-| `dark` | 다크 모드 | #0F0F0F | #F5A623 |
-| `classic` | 클래식 네이비 | #F5F7FA | #2C3E6B |
-| `toss` | 토스 블루 | #F4F4F4 | #3182F6 |
-
-테마 전환: `SettingsBar` (우측 상단 고정) -> `ThemeProvider` -> `<html data-theme="xxx">` -> CSS 변수 적용
+### iOS SwiftUI
+- **`swift build`로 iOS 앱 빌드** -> macOS 타겟으로 빌드되어 UIKit/SwiftUI iOS-only API 오류 → `xcodebuild` + iOS Simulator destination으로 전환
+- **Swift 6 regex literal `/^[A-Za-z]+$/`** -> `' is not an identifier` 컴파일 에러 → `allSatisfy` 방식으로 대체
+- **`navigationBarTitleDisplayMode` macOS 에러** -> iOS 전용 API, `xcodebuild` 타겟으로 해결
+- **Scheme 이름 불일치** -> `xcodebuild -list`로 실제 scheme 확인 필요
+- **`pow`/`round` in scope 에러** -> 테스트 파일에 `import Foundation` 누락
+- **월배당 반올림 누적 오차** -> total 수준 비교 대신 개별 종목별로 `annualDividend / 12 == monthlyDividend` 검증
+- **Package.swift만으로는 .app 생성 불가** -> xcodegen으로 .xcodeproj 생성하여 시뮬레이터 실행
+- **osascript 접근성 권한 없음** -> AppleScript로 시뮬레이터 UI 조작 불가 → XCUITest로 전환
+- **HoldingItem ID 충돌** -> 밀리초 타임스탬프 ID가 연속 생성 시 겹힘 → UUID().uuidString으로 해결
+- **보유 탭 XCUITest 콘텐츠 탐지** -> currentPrice nil이면 totalEval=0 → "평가 요약" 카드 미표시, "보유 종목이 없습니다"도 미표시 → 종목명(KODEX/TIGER)으로 콘텐츠 존재 확인
+- **XCUITest에서 탭 순서 누적 지연** -> 이전 탭 전환이 쌓이면 보유 탭 로딩 시간 증가 → sleep 및 timeout 여유 필요
+- **SwiftUI 중첩 sheet 빈 화면** -> DataMenuSheet(.sheet) 내에서 ShareSheet(.sheet)을 또 열면 빈 팝업 → UIKit UIActivityViewController 직접 present로 해결 (ShareHelper)
+- **CSV 내보내기 ShareSheet 빈 내용** -> String을 직접 넘기면 표시 안 됨 → 임시 파일 URL로 저장 후 공유
+- **보유내역 임포트 데이터 뻥튀기** -> append 방식이라 기존+신규 합산됨 → replaceAllHoldings로 교체 방식 전환
+- **SwiftData @Attribute(.unique) 충돌** -> 임포트 시 holdingsVM.holdings nil 상태에서 새 객체 insert하면 portfolioId 중복 → loadHoldings() 선호출로 해결
+- **Swift 타입 체커 타임아웃** -> IntroView에서 큰 배열 리터럴이 타입 추론 실패 → 함수로 분리 (`makeIntroCards()`)
+- **디바이스 ID 혼동** -> ECID(00008130-...)를 devicectl에 넘기면 "not found" → CoreDevice Identifier(UUID 형태)만 인식
+- **pbxproj 중복 등록** -> 같은 파일을 FileReference/BuildFile에 2번 등록하면 빌드 에러 → 등록 전 기존 항목 확인 필수
 
 ---
 
@@ -139,122 +165,120 @@ ExcelJS로 `{ formula: '...' }` 만 쓰면 캐시값(`<v>`)이 없어 Numbers/Ex
 
 ```
 portfolio-manager/
-├── app/
-│   ├── api/stock/
-│   │   ├── search/route.ts              # 네이버 AC API 프록시
-│   │   └── price/[code]/route.ts        # 네이버 basic API 프록시
-│   ├── components/
-│   │   ├── StockSearch.tsx              # 종목 검색 + 자동완성
-│   │   ├── AddStockModal.tsx            # 종목 추가/수정 모달
-│   │   ├── AddHoldingModal.tsx          # 보유 내역 추가/수정 모달
-│   │   ├── PortfolioTable.tsx           # 포트폴리오 테이블
-│   │   ├── HoldingsTable.tsx            # 보유 내역 그리드 (소계행 + CSV 버튼)
-│   │   ├── HoldingsSummary.tsx          # 보유현황 요약 (카테고리 원형차트)
-│   │   ├── AllocationTable.tsx          # 투자금액별 계산표
-│   │   ├── PortfolioSummary.tsx         # 포트폴리오 요약 통계
-│   │   ├── GrowthReport.tsx             # 자산성장 전망 리포트
-│   │   ├── PieChart.tsx                 # SVG 도넛 차트
-│   │   ├── BarChart.tsx                 # SVG 수평 바차트 (목표/실제 비중)
-│   │   ├── WeightComparisonChart.tsx    # 비중 비교 래퍼 (카테고리/종목 토글)
-│   │   ├── CsvImportModal.tsx           # CSV 가져오기 모달 (드래그앤드롭)
-│   │   ├── IntroPage.tsx                # 인트로 페이지
-│   │   ├── SettingsBar.tsx              # 테마/도움말 토글
-│   │   ├── ThemeProvider.tsx            # 테마 컨텍스트
-│   │   ├── HelpProvider.tsx             # 도움말 컨텍스트
-│   │   ├── ClientProviders.tsx          # 프로바이더 래퍼
-│   │   └── BalloonTooltip.tsx           # 도움말 풍선
-│   ├── lib/
-│   │   ├── types.ts                     # PortfolioStock, Portfolio, HoldingItem, PortfolioHoldings 등
-│   │   ├── constants.ts                 # CATEGORY_OPTIONS, CATEGORY_COLORS, CATEGORY_BG_COLORS
-│   │   ├── naverFinance.ts              # 네이버 API 클라이언트
-│   │   ├── portfolioCalc.ts             # 매수수량/배당 계산, formatNumber/Percent
-│   │   ├── holdingsCalc.ts              # 평가액/손익/수익률/카테고리집계/비중비교
-│   │   ├── portfolioStorage.ts          # 포트폴리오 localStorage CRUD
-│   │   ├── holdingsStorage.ts           # 보유내역 localStorage CRUD
-│   │   ├── csvUtils.ts                  # CSV 파싱/내보내기 (BOM, RFC 4180)
-│   │   ├── settingsStorage.ts           # 테마/도움말 설정 저장
-│   │   ├── growthCalc.ts                # 자산성장 복리 계산
-│   │   └── exportExcel.ts              # ExcelJS Excel 내보내기 (6시트)
-│   ├── globals.css                      # 4개 테마 CSS 변수
-│   ├── layout.tsx
-│   └── page.tsx                         # 메인 페이지 (5탭 모바일 내비)
-├── tests/
-│   ├── setup.ts
-│   ├── mocks/
-│   │   ├── server.ts
-│   │   ├── handlers.ts
-│   │   └── localStorage.ts
-│   ├── unit/        (portfolioCalc 17t + portfolioStorage 13t + holdingsStorage 8t + holdingsCalc 13t + csvUtils 13t + settingsStorage 7t)
-│   ├── api/         (stockSearch 7t + stockPrice 7t)
-│   └── components/  (StockSearch 12t + AddStockModal 15t + PortfolioTable 11t + growthCalc 15t + BalloonTooltip 3t + IntroPage 5t)
-├── vitest.config.ts
-├── package.json
-├── tailwind.config.ts
-├── tsconfig.json
-├── next.config.js
-└── postcss.config.js
+├── app/                              # 웹앱 (Next.js)
+│   ├── api/stock/                    # 네이버 API 프록시
+│   ├── components/                   # React 컴포넌트 (17개)
+│   ├── lib/                          # 비즈니스 로직 (11개)
+│   ├── globals.css                   # 4개 테마 CSS 변수
+│   └── page.tsx                      # 메인 페이지
+├── tests/                            # 웹앱 테스트 (136 tests)
+├── mobile/
+│   └── swiftui/                      # iOS SwiftUI 앱
+│       ├── Package.swift             # SPM 패키지 (유닛 테스트용)
+│       ├── project.yml               # xcodegen 스펙 (앱+UITest 3타겟)
+│       ├── ETFPortfolioManager.xcodeproj/  # 생성된 Xcode 프로젝트
+│       ├── ETFPortfolioManager/      # Swift 소스 (41파일)
+│       │   ├── App/                  # @main, ContentView, DemoDataSeeder
+│       │   ├── Models/               # SwiftData 모델
+│       │   ├── Calculators/          # 비즈니스 로직 (웹앱 포팅)
+│       │   ├── Services/             # NaverStockService, BiometricAuth, DataManager
+│       │   ├── ViewModels/           # MVVM ViewModel
+│       │   ├── Views/                # Tabs(5) + Components(7) + Sheets(5) + IntroView
+│       │   ├── Theme/                # 토스 컬러/타이포/테마매니저
+│       │   ├── Constants/            # 카테고리
+│       │   ├── Utilities/            # Haptics
+│       │   └── Assets.xcassets/      # 앱 아이콘 (1024x1024 universal)
+│       ├── Tests/                    # Swift Testing 유닛 (27 tests)
+│       └── UITests/                  # XCUITest (15 tests)
+│           ├── FullFeatureUITests.swift   # 10개 기능별 테스트
+│           └── ScreenshotTests.swift      # 5개 탭별 스크린샷+검증
+├── docs/
+│   ├── ios-swiftui-design.md         # SwiftUI 설계서
+│   ├── ios-expo-design.md            # Expo 설계서
+│   ├── ios-considerations.md         # iOS 접근법 비교
+│   └── mobile-toss-redesign.md       # 토스 스타일 UI 설계
+├── CLAUDE.md
+└── HANDOFF.md
 ```
 
 ---
 
-## localStorage 키
-
-| 키 | 타입 | 용도 |
-|----|------|------|
-| `etf_portfolios` | `Portfolio[]` | 포트폴리오 목록 |
-| `etf_holdings` | `PortfolioHoldings[]` | 보유 내역 (portfolioId로 매칭) |
-| `etf_theme` | `ThemeName` | 현재 테마 |
-| `etf_help_enabled` | `boolean` | 도움말 표시 여부 |
-
----
-
-## Excel 시트 구조 (현재 6시트)
-
-| 순서 | 시트명 | 내용 |
-|------|--------|------|
-| 1 | 포트폴리오 요약 | 기본 정보 + 핵심 지표 + 종목별 요약 테이블 |
-| 2 | 포트폴리오 구성 | 투자 원칙 + 자산배분 전략 + 투자금액별 구성표 (수식+result) |
-| 3 | 자산성장 전망 | 파라미터 + 1~10년 자산/배당 성장 전망 테이블 |
-| 4 | 종목 분석 | 종목명, 핵심역할, 선정근거 |
-| 5 | 자산관리자 의견 | 빈 템플릿 (시장전망, 전략의견, 리스크, 권고사항) |
-| 6 | 보유 내역 | 구분/종목/코드/수량/평단가/현재가/평가액(수식) + 구분별 소계 + 합계 |
-
-**수식 셀 주의**: 모든 `{ formula }` 에 반드시 `result` 값 포함 (미포함 시 Excel/Numbers에서 빈 셀).
-
----
-
-## 자산성장 계산 공식
-
-```
-매년:
-  asset[n]      = asset[n-1] * (1 + assetGrowthRate) + annualAddition
-  dividendRate[n] = initialDividendRate * (1 + dividendGrowthRate)^n
-  annualDiv[n]  = asset[n] * dividendRate[n]
-  monthlyDiv[n] = annualDiv[n] / 12
-
-기본값: 배당성장율 4%, 연추가투자 1,200만원, 자산상승율 7%
-```
-
----
-
-## 테스트 명령
+## iOS 시뮬레이터 실행 방법
 
 ```bash
-npm run test           # 전체 실행 (136 tests)
-npm run test:watch     # 변경 감지 모드
-npm run test:coverage  # 커버리지 리포트
-npx tsc --noEmit       # TypeScript 타입 체크
-npm run build          # 프로덕션 빌드
+cd /Users/whoana/DEV/workspaces/claude-code/portfolio-manager/mobile/swiftui
+
+# 프로젝트 재생성 (project.yml 변경 시)
+xcodegen generate
+
+# 빌드
+xcodebuild build -project ETFPortfolioManager.xcodeproj \
+  -scheme ETFPortfolioManager \
+  -destination "platform=iOS Simulator,id=60D6B006-DAB7-4363-B7E2-744A742B7E53"
+
+# 시뮬레이터에 설치 + 실행
+APP_PATH="/Users/whoana/Library/Developer/Xcode/DerivedData/ETFPortfolioManager-gmjcpigfijmrtzfkqckodonpzfkt/Build/Products/Debug-iphonesimulator/ETFPortfolioManager.app"
+xcrun simctl install 60D6B006-DAB7-4363-B7E2-744A742B7E53 "$APP_PATH"
+xcrun simctl launch 60D6B006-DAB7-4363-B7E2-744A742B7E53 com.etfportfolio.manager
+
+# 유닛 테스트 (27 tests)
+xcodebuild test -project ETFPortfolioManager.xcodeproj \
+  -scheme ETFPortfolioManager \
+  -destination "platform=iOS Simulator,id=60D6B006-DAB7-4363-B7E2-744A742B7E53" \
+  -only-testing:ETFPortfolioManagerTests
+
+# UI 테스트 (15 tests)
+xcodebuild test -project ETFPortfolioManager.xcodeproj \
+  -scheme ETFPortfolioManager \
+  -destination "platform=iOS Simulator,id=60D6B006-DAB7-4363-B7E2-744A742B7E53" \
+  -only-testing:ETFPortfolioManagerUITests
+
+# 전체 테스트 (42 tests)
+xcodebuild test -project ETFPortfolioManager.xcodeproj \
+  -scheme ETFPortfolioManager \
+  -destination "platform=iOS Simulator,id=60D6B006-DAB7-4363-B7E2-744A742B7E53"
+
+# 스크린샷 캡처
+xcrun simctl io 60D6B006-DAB7-4363-B7E2-744A742B7E53 screenshot /tmp/screenshot.png
+
+# 클린 재설치 (데이터 초기화)
+xcrun simctl uninstall 60D6B006-DAB7-4363-B7E2-744A742B7E53 com.etfportfolio.manager
 ```
+
+Simulator ID `60D6B006-DAB7-4363-B7E2-744A742B7E53` = iPhone 17 Pro
+
+### iPhone 실기기 배포
+
+```bash
+cd /Users/whoana/DEV/workspaces/claude-code/portfolio-manager/mobile/swiftui
+
+# 빌드 (실기기용)
+xcodebuild -project ETFPortfolioManager.xcodeproj \
+  -scheme ETFPortfolioManager \
+  -destination 'generic/platform=iOS' \
+  -derivedDataPath build build
+
+# 연결 디바이스 확인 (CoreDevice Identifier 확인)
+xcrun devicectl list devices
+
+# 설치
+xcrun devicectl device install app \
+  --device "CEAB8862-57B4-558D-9644-EB5F05744E71" \
+  "build/Build/Products/Debug-iphoneos/ETFPortfolioManager.app"
+```
+
+실기기 ID `CEAB8862-57B4-558D-9644-EB5F05744E71` = iPhone 13 Pro (후아나)
 
 ---
 
-## How to Run
+## 웹앱 테스트/실행 명령
 
 ```bash
 cd /Users/whoana/DEV/workspaces/claude-code/portfolio-manager
-npm run dev    # 개발 서버 (http://localhost:3000)
-npm run build  # 프로덕션 빌드
+npm run dev              # 개발 서버 (http://localhost:3000)
+npm run test             # 전체 테스트 (136 tests)
+npm run test:coverage    # 커버리지 리포트
+npm run build            # 프로덕션 빌드
 ```
 
 ---
@@ -264,17 +288,48 @@ npm run build  # 프로덕션 빌드
 - macOS Darwin 25.3.0 (Apple Silicon)
 - Node.js v24.3.0, npm 11.4.2
 - Next.js 14.2.30, Vitest 2.1.9
+- Xcode 16.x, Swift 5.9+, iOS 17.0 target
+- xcodegen 2.45.3, cliclick (설치됨)
+- 실기기: iPhone 13 Pro (CoreDevice ID: CEAB8862-57B4-558D-9644-EB5F05744E71)
+- iOS 개발 스킬: `~/.claude/skills/ios-dev/skill.md` (통합 iOS 개발 가이드)
 - 프로젝트 경로: `/Users/whoana/DEV/workspaces/claude-code/portfolio-manager/`
+
+---
+
+## DemoDataSeeder 동작
+
+앱 첫 실행 시 (`ContentView.onAppear`) `DemoDataSeeder.seedIfNeeded(context:)`가 호출됨:
+- 기존 포트폴리오가 2종목이면 스킵
+- 아니면 기존 데이터 삭제 후 아래 구성 생성:
+  - **포트폴리오** "테스트" (투자금액 1억원)
+  - **종목 1**: 고배당 / KODEX 미국배당커버드콜액티브 / 441640 / 50% / 배당률 10%
+  - **종목 2**: 배당 / TIGER 미국배당다우존스 / 458730 / 50% / 배당률 3.5%
+  - **보유 내역**: 441640 500주 평단 11,000원 + 458730 300주 평단 13,500원
+
+프로덕션 배포 시 `DemoDataSeeder` 호출을 제거하거나 조건부로 변경해야 함.
 
 ---
 
 ## Next Steps (잠재적 개선 사항)
 
+### iOS 앱 — 즉시 가능
+- [ ] 시세 갱신 (pull-to-refresh) 후 배분/요약/성장 탭 데이터 변화 확인
+- [ ] DemoDataSeeder를 디버그 빌드 전용으로 분리 (`#if DEBUG`)
+- [x] ~~앱 아이콘, 런치스크린 리소스 추가~~ (앱 아이콘 완료, 런치스크린 미정)
+- [ ] 종목 삭제 (스와이프) 기능 확인/구현
+- [ ] 오늘 추가된 기능에 대한 테스트 보강 (DataManager, IntroView 등)
+- [ ] git commit — 오늘 작업분 미커밋 상태
+
+### iOS 앱 — 중기
+- [ ] Expo (React Native) 버전 구현 (`mobile/expo/`, 설계서 `docs/ios-expo-design.md` 있음)
+- [ ] WidgetKit 위젯 구현 (설계서에 포함)
+- [ ] iCloud 동기화 구현
+- [ ] Face ID 잠금 기능 연동 (BiometricAuth 서비스 구현 완료)
+- [ ] 보유 탭에서 시세 갱신 후 평가 요약 카드 표시 검증
+
+### 웹앱
 - [ ] 자산성장 전망 차트 시각화 (Chart.js 또는 Recharts)
-- [ ] GrowthReport 파라미터도 Excel 시트에서 편집 가능하도록 (Excel 수식 연동)
 - [ ] 포트폴리오 내보내기/가져오기 (JSON)
 - [ ] 포트폴리오 간 비교 기능
-- [ ] 토스 테마에서 한국식 상승/하락색 (빨강=상승, 파랑=하락) 옵션
 - [ ] PWA 지원 (오프라인 접근, 홈화면 추가)
-- [ ] 보유 내역의 배당금 추적 (배당률 연동)
 - [ ] 리밸런싱 가이드 (목표비중 vs 실제비중 차이 기반 매수/매도 추천)

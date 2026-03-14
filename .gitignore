@@ -52,10 +52,10 @@ Thumbs.db
 # large media
 resources/videos/
 
-# screenshots / images (QA, 디버깅용)
-*.png
-*.jpg
-*.jpeg
+# screenshots / images (QA, 디버깅용 — 루트 레벨만)
+/*.png
+/*.jpg
+/*.jpeg
 
 # nohup
 nohup.out
@@ -67,6 +67,15 @@ nohup.out
 docs/.bkit-memory.json
 docs/.pdca-snapshots/
 docs/.pdca-status.json
+
+# Swift / Xcode
+mobile/swiftui/.build/
+mobile/swiftui/build/
+mobile/swiftui/build-sim/
+mobile/swiftui/.swiftpm/
+mobile/swiftui/DerivedData/
+mobile/swiftui/ETFPortfolioManager.xcodeproj/xcuserdata/
+mobile/swiftui/ETFPortfolioManager.xcodeproj/project.xcworkspace/xcuserdata/
 
 # misc
 *.pem
